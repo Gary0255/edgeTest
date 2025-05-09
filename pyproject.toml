@@ -1,0 +1,13 @@
+[project]
+name = "edgetest"
+version = "0.1.0"
+description = "Perform Stress Testing in Device"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "onnx>=1.17.0",
+    "onnxruntime-gpu>=1.21.1",
+    "onnxslim>=0.1.51",
+    "tensorrt>=10.10.0.31",
+    "ultralytics>=8.3.129",
+]
