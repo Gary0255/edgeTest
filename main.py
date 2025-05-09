@@ -36,7 +36,10 @@ def export_model(pt_path: Path, fmt: str, device: str = None):
       device: e.g. "0" for GPU, or None (uses CPU)
     Returns the Path to the exported model.
     """
-    out = pt_path.with_suffix(f".{fmt}")
+    if fmt == "openvino":
+        out = pt_path.with_suffix(f"_openvino_model/")
+    else:
+        out = pt_path.with_suffix(f".{fmt}")
     if out.exists():
         print(f"[INFO] Found existing {out.name}")
         return out
@@ -77,11 +80,11 @@ def main():
     pt_path = Path(args.model_pt)
     if has_nvidia_gpu():
         print("[INFO] NVIDIA GPU detected.")
-        model_file = export_model(pt_path, format="engine", device="0")
+        model_file = export_model(pt_path, fmt="engine", device="0")
     elif is_intel_cpu():
         print("[INFO] Intel CPU detected (no NVIDIA GPU).")
         # device=None means CPU export for OpenVINO
-        model_file = export_model(pt_path, format="openvino")
+        model_file = export_model(pt_path, fmt="openvino")
     else:
         print("[INFO] No NVIDIA GPU or Intel CPU detected — using .pt directly.")
         model_file = pt_path
