@@ -56,21 +56,21 @@ def main():
     p = argparse.ArgumentParser(
         description="Detect hardware, export model, then run parallel stress test"
     )
-    p.add_argument("--source",      "-s", required=True,
+    p.add_argument("--source",      "-s", default="test_video.mp4",
                    help="YOLO source (video file, camera index, etc.)")
-    p.add_argument("--model-pt",    "-p", required=True,
+    p.add_argument("--model-pt",    "-p", default="yolo11x.pt",
                    help="Path to your YOLO .pt checkpoint")
-    p.add_argument("--duration",    "-d", type=int, default=300,
+    p.add_argument("--duration",    "-d", type=int, default=200,
                    help="Seconds to run each batch")
-    p.add_argument("--interval",    "-i", type=int, default=5,
+    p.add_argument("--interval",    "-i", type=int, default=10,
                    help="Sampling interval in seconds")
     p.add_argument("--max-instances","-n", type=int, default=16,
                    help="Maximum parallel instances to try")
-    p.add_argument("--cpu-threshold", type=float, default=95.0,
+    p.add_argument("--cpu-threshold", type=float, default=90.0,
                    help="Avg CPU% threshold")
     p.add_argument("--mem-threshold", type=float, default=90.0,
                    help="Avg Memory% threshold")
-    p.add_argument("--fps-threshold", type=float, default=5.0,
+    p.add_argument("--fps-threshold", type=float, default=3.0,
                    help="Avg FPS threshold")
     args = p.parse_args()
 
