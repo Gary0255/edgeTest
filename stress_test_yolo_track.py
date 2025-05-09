@@ -117,7 +117,7 @@ def main():
     logger.start()
 
     # Load YOLO model once
-    model = YOLO(args.model)
+    model = YOLO(args.model, task="detect")
 
     print(f"Starting stress test for {args.duration}s "
           f"on source '{args.source}' with model '{args.model}'")
