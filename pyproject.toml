@@ -10,6 +10,7 @@ dependencies = [
     "onnx>=1.17.0",
     "onnxruntime-gpu>=1.21.1",
     "onnxslim>=0.1.51",
+    "openvino>=2025.1.0",
     "tensorrt>=10.10.0.31",
     "ultralytics>=8.3.129",
 ]
