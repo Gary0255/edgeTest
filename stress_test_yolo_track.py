@@ -12,6 +12,8 @@ import csv
 import argparse
 from pathlib import Path
 
+from utils import ensure_test_video
+
 import psutil
 from ultralytics import YOLO
 
@@ -24,7 +26,7 @@ def parse_args():
         help="Input source (video file, image glob or camera index)"
     )
     parser.add_argument(
-        "--model", "-m", type=str, default="yolo11x.onnx",
+        "--model", "-m", type=str, default="yolo11x.pt",
         help="YOLO model checkpoint path"
     )
     parser.add_argument(
@@ -92,8 +94,11 @@ def log_system_stats(log_file, log_interval, stop_event, current_fps):
 def main():
     args = parse_args()
 
+    # Handle default test video if needed
+    if args.source == "test_video.mp4":
+        args.source = ensure_test_video(args.source)
     # Validate source
-    if not (args.source.isnumeric() or Path(args.source).exists()):
+    elif not (args.source.isnumeric() or Path(args.source).exists()):
         print(f"[ERROR] Source '{args.source}' not found.")
         return
 

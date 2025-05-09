@@ -15,6 +15,8 @@ import csv
 from pathlib import Path
 from ultralytics import YOLO
 
+from utils import ensure_test_video
+
 def parse_args():
     p = argparse.ArgumentParser(
         description="Parallel YOLO Stress Test with optional TensorRT export"
@@ -105,6 +107,10 @@ def parse_fps_from_csv(logfile: Path):
 
 def main():
     args = parse_args()
+
+    # 0) Handle default test video if needed
+    if args.source == "./test_video.mp4":
+        args.source = ensure_test_video("test_video.mp4")
 
     # 1) GPU detection & optional engine export
     model_path = Path(args.model_pt)
