@@ -37,7 +37,7 @@ def export_model(pt_path: Path, fmt: str, device: str = None):
     Returns the Path to the exported model.
     """
     if fmt == "openvino":
-        out = str(pt_path.with_suffix("")) + "_openvino_model/"
+        out = Path(str(pt_path.with_suffix("")) + "_openvino_model/")
     else:
         out = pt_path.with_suffix(f".{fmt}")
     if out.exists():
