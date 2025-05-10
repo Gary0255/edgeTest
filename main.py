@@ -13,20 +13,19 @@ from pathlib import Path
 from ultralytics import YOLO
 
 def has_nvidia_gpu():
+    """Check for NVIDIA GPU support using PyTorch's CUDA API"""
     try:
-        res = subprocess.run(
-            ["nvidia-smi","--query-gpu=name","--format=csv,noheader"],
-            capture_output=True, text=True, check=True
-        )
-        return bool(res.stdout.strip())
-    except Exception:
+        import torch
+        return torch.cuda.is_available()
+    except ImportError:
         return False
 
-def is_intel_cpu():
+def is_intel_gpu():
+    """Check for Intel GPU support using PyTorch's XPU API"""
     try:
-        with open("/proc/cpuinfo") as f:
-            return any("GenuineIntel" in line for line in f)
-    except FileNotFoundError:
+        import torch
+        return torch.xpu.is_available() if hasattr(torch, 'xpu') else False
+    except ImportError:
         return False
 
 def export_model(pt_path: Path, fmt: str, device: str = None):
@@ -81,12 +80,11 @@ def main():
     if has_nvidia_gpu():
         print("[INFO] NVIDIA GPU detected.")
         model_file = export_model(pt_path, fmt="engine", device="0")
-    elif is_intel_cpu():
-        print("[INFO] Intel CPU detected (no NVIDIA GPU).")
-        # device=None means CPU export for OpenVINO
+    elif is_intel_gpu():
+        print("[INFO] Intel GPU detected.")
         model_file = export_model(pt_path, fmt="openvino")
     else:
-        print("[INFO] No NVIDIA GPU or Intel CPU detected — using .pt directly.")
+        print("[INFO] No supported GPU detected — using .pt directly.")
         model_file = pt_path
 
     # Build subprocess call to parallel_stress.py

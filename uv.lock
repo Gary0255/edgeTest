@@ -2,15 +2,16 @@ version = 1
 revision = 2
 requires-python = ">=3.12"
 resolution-markers = [
-    "python_full_version >= '3.13' and sys_platform == 'win32'",
-    "python_full_version < '3.13' and sys_platform == 'win32'",
-    "python_full_version >= '3.13' and sys_platform == 'darwin'",
-    "python_full_version < '3.13' and sys_platform == 'darwin'",
-    "python_full_version >= '3.13' and platform_machine == 'aarch64' and sys_platform == 'linux'",
-    "python_full_version < '3.13' and platform_machine == 'aarch64' and sys_platform == 'linux'",
-    "(python_full_version >= '3.13' and platform_machine != 'aarch64' and sys_platform == 'linux') or (python_full_version >= '3.13' and sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')",
-    "(python_full_version < '3.13' and platform_machine != 'aarch64' and sys_platform == 'linux') or (python_full_version < '3.13' and sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')",
+    "sys_platform == 'win32'",
+    "sys_platform == 'darwin'",
+    "platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')",
 ]
+conflicts = [[
+    { package = "edgetest", extra = "cpu" },
+    { package = "edgetest", extra = "gpu" },
+    { package = "edgetest", extra = "xpu" },
+]]
 
 [[package]]
 name = "beautifulsoup4"
@@ -148,11 +149,30 @@ dependencies = [
     { name = "gdown" },
     { name = "lap" },
     { name = "onnx" },
-    { name = "onnxruntime-gpu" },
     { name = "onnxslim" },
-    { name = "openvino" },
-    { name = "tensorrt" },
     { name = "ultralytics" },
+]
+
+[package.optional-dependencies]
+cpu = [
+    { name = "onnxruntime" },
+    { name = "torch", version = "2.7.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(sys_platform == 'darwin' and extra == 'extra-8-edgetest-cpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "torch", version = "2.7.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(sys_platform != 'darwin' and extra == 'extra-8-edgetest-cpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "torchvision", version = "0.22.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-8-edgetest-cpu') or (platform_machine != 'aarch64' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (platform_machine != 'aarch64' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (platform_machine != 'aarch64' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform == 'darwin' and extra == 'extra-8-edgetest-cpu') or (sys_platform != 'linux' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (sys_platform != 'linux' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform != 'linux' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform == 'darwin' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "torchvision", version = "0.22.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-8-edgetest-cpu') or (sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-8-edgetest-cpu') or (sys_platform == 'darwin' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (sys_platform == 'darwin' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform == 'darwin' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform == 'linux' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (sys_platform == 'linux' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+]
+gpu = [
+    { name = "onnxruntime-gpu" },
+    { name = "tensorrt" },
+    { name = "torch", version = "2.7.0+cu126", source = { registry = "https://download.pytorch.org/whl/cu126" } },
+    { name = "torchvision", version = "0.22.0+cu126", source = { registry = "https://download.pytorch.org/whl/cu126" } },
+]
+xpu = [
+    { name = "onnxruntime-openvino" },
+    { name = "openvino" },
+    { name = "pytorch-triton-xpu" },
+    { name = "torch", version = "2.7.0+xpu", source = { registry = "https://download.pytorch.org/whl/xpu" } },
+    { name = "torchvision", version = "0.22.0+xpu", source = { registry = "https://download.pytorch.org/whl/xpu" } },
 ]
 
 [package.metadata]
@@ -160,12 +180,22 @@ requires-dist = [
     { name = "gdown", specifier = ">=5.2.0" },
     { name = "lap", specifier = ">=0.5.12" },
     { name = "onnx", specifier = ">=1.17.0" },
-    { name = "onnxruntime-gpu", specifier = ">=1.21.1" },
+    { name = "onnxruntime", marker = "extra == 'cpu'", specifier = ">=1.21.1" },
+    { name = "onnxruntime-gpu", marker = "extra == 'gpu'", specifier = ">=1.20.1" },
+    { name = "onnxruntime-openvino", marker = "extra == 'xpu'", specifier = ">=1.20.1" },
     { name = "onnxslim", specifier = ">=0.1.51" },
-    { name = "openvino", specifier = ">=2025.1.0" },
-    { name = "tensorrt", specifier = ">=10.10.0.31" },
+    { name = "openvino", marker = "extra == 'xpu'", specifier = ">=2025.1.0" },
+    { name = "pytorch-triton-xpu", marker = "extra == 'xpu'", specifier = ">=3.3.0", index = "https://download.pytorch.org/whl/xpu", conflict = { package = "edgetest", extra = "xpu" } },
+    { name = "tensorrt", marker = "extra == 'gpu'", specifier = ">=10.10.0.31" },
+    { name = "torch", marker = "extra == 'cpu'", specifier = ">=2.7.0", index = "https://download.pytorch.org/whl/cpu", conflict = { package = "edgetest", extra = "cpu" } },
+    { name = "torch", marker = "extra == 'gpu'", specifier = ">=2.7.0", index = "https://download.pytorch.org/whl/cu126", conflict = { package = "edgetest", extra = "gpu" } },
+    { name = "torch", marker = "extra == 'xpu'", specifier = ">=2.7.0", index = "https://download.pytorch.org/whl/xpu", conflict = { package = "edgetest", extra = "xpu" } },
+    { name = "torchvision", marker = "extra == 'cpu'", specifier = ">=0.22.0", index = "https://download.pytorch.org/whl/cpu", conflict = { package = "edgetest", extra = "cpu" } },
+    { name = "torchvision", marker = "extra == 'gpu'", specifier = ">=0.22.0", index = "https://download.pytorch.org/whl/cu126", conflict = { package = "edgetest", extra = "gpu" } },
+    { name = "torchvision", marker = "extra == 'xpu'", specifier = ">=0.22.0", index = "https://download.pytorch.org/whl/xpu", conflict = { package = "edgetest", extra = "xpu" } },
     { name = "ultralytics", specifier = ">=8.3.129" },
 ]
+provides-extras = ["cpu", "gpu", "xpu"]
 
 [[package]]
 name = "filelock"
@@ -253,6 +283,131 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/f1/70/7703c29685631f5a7590aa73f1f1d3fa9a380e654b86af429e0934a32f7d/idna-3.10.tar.gz", hash = "sha256:12f65c9b470abda6dc35cf8e63cc574b1c52b11df2c86030af0ac09b01b13ea9", size = 190490, upload-time = "2024-09-15T18:07:39.745Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/76/c6/c88e154df9c4e1a2a66ccf0005a88dfb2650c1dffb6f5ce603dfbd452ce3/idna-3.10-py3-none-any.whl", hash = "sha256:946d195a0d259cbba61165e88e65941f16e9b36ea6ddb97f00452bae8b1287d3", size = 70442, upload-time = "2024-09-15T18:07:37.964Z" },
+]
+
+[[package]]
+name = "intel-cmplr-lib-rt"
+version = "2025.0.4"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')",
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c2/80/2a10995012a5d80cca2d8cac5d3a763116f1d57c272ee4f07ca94ba63a1a/intel_cmplr_lib_rt-2025.0.4-py2.py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:440cf7cad2ed16f6a0a4589b03447b2d4fdae4f630ea26a4510e1cf5b40b1f1d", size = 45884211, upload-time = "2024-12-12T12:02:44.312Z" },
+    { url = "https://files.pythonhosted.org/packages/99/c3/fa50f44d2b2765002aaf3a116601d2deb5c946da6681ae68d0dd45a7d6ef/intel_cmplr_lib_rt-2025.0.4-py2.py3-none-win_amd64.whl", hash = "sha256:a826508b902318e015f5414e944d8e5eb3436264e44fe1db8ebecc91820bb53e", size = 17271117, upload-time = "2024-12-12T12:02:16.738Z" },
+]
+
+[[package]]
+name = "intel-cmplr-lib-rt"
+version = "2025.0.5"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "sys_platform == 'win32'",
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ab/62/69963e0855c9e8c0f0f77da2cdf6fb185568ed938d2175a3e989c49a88a7/intel_cmplr_lib_rt-2025.0.5-py2.py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:c6dbc09545927d334a0c5c1d4cbbfe940ea6ff12ae956479f68605489119783b", size = 45884211, upload-time = "2025-03-06T13:43:10.016Z" },
+    { url = "https://files.pythonhosted.org/packages/1b/16/85f1f3c1ab200d369b9774b1b6121d2790c8b8647a135882106bcd3aadf9/intel_cmplr_lib_rt-2025.0.5-py2.py3-none-win_amd64.whl", hash = "sha256:928395dc2dc6e423439ff72e52cd02fc5e79686d5b14ce20f58461d8ed7d950a", size = 17271117, upload-time = "2025-02-11T10:59:27.047Z" },
+]
+
+[[package]]
+name = "intel-cmplr-lib-ur"
+version = "2025.0.4"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')",
+]
+dependencies = [
+    { name = "umf", marker = "(sys_platform != 'win32' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ae/d0/0d376a3eb3d5f8d0c0dd828a9f889e485d8ded1f7d501976c72916826cef/intel_cmplr_lib_ur-2025.0.4-py2.py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:d36d586721f0cb87b051aca1bf3f653ccee7960f15efb0132e5482d95c5b2c9b", size = 25158275, upload-time = "2024-12-12T12:03:36.653Z" },
+    { url = "https://files.pythonhosted.org/packages/52/52/e7f1d0c3e802aa84e07eeeb57d3b1e538b7ba3a6b66c2f36c898031efdb0/intel_cmplr_lib_ur-2025.0.4-py2.py3-none-win_amd64.whl", hash = "sha256:4e29099b10b2f3b6ab3d45f9f18e14877b20ff96b1694d0edd98a802a7b66f16", size = 1163424, upload-time = "2024-12-12T12:02:34.482Z" },
+]
+
+[[package]]
+name = "intel-cmplr-lib-ur"
+version = "2025.0.5"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "sys_platform == 'win32'",
+]
+dependencies = [
+    { name = "umf", marker = "(sys_platform == 'win32' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/dc/cc/98ab8fa8f787b6241d565287fa50049d99eead0083df028536d537ce8c65/intel_cmplr_lib_ur-2025.0.5-py2.py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:d64eceba9dc77890672625cb4994ff42b6b6de907ea54dfcad77748239652cb1", size = 25158272, upload-time = "2025-03-06T13:43:52.704Z" },
+    { url = "https://files.pythonhosted.org/packages/1e/c1/23e258d315f4b39cd923236e6eba90d25f936968be7a0bdfc46b079cef25/intel_cmplr_lib_ur-2025.0.5-py2.py3-none-win_amd64.whl", hash = "sha256:d792c1cafada93aee1ab387e85ecd906a6bb0c0fc5d5fb9b2986c1dcaf301aae", size = 1163425, upload-time = "2025-02-11T10:59:31.57Z" },
+]
+
+[[package]]
+name = "intel-cmplr-lic-rt"
+version = "2025.0.4"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')",
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c3/18/77cc45b2e48f35c126f478116b65cad1025cd89ab58038a93fc2ce03a6e9/intel_cmplr_lic_rt-2025.0.4-py2.py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:943d03ef2028cdb33140c84bad35b45d02186617ac0cd15849d179764132408a", size = 18913, upload-time = "2024-12-12T12:02:36.833Z" },
+    { url = "https://files.pythonhosted.org/packages/9f/16/6b9c5281cd437e67b319938aac29626fade0aa821572d6417ca906e910b6/intel_cmplr_lic_rt-2025.0.4-py2.py3-none-win_amd64.whl", hash = "sha256:a9073f2b513a4dc187d93a9e8d88b2d4370573d37dd0fbe6e1fe886f6f1e10a6", size = 49547, upload-time = "2024-12-12T12:02:20.766Z" },
+]
+
+[[package]]
+name = "intel-cmplr-lic-rt"
+version = "2025.0.5"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "sys_platform == 'win32'",
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/af/fe/b01194ef6087cf5069325bb65550826048d4a7b46fe562e4a44f1f035448/intel_cmplr_lic_rt-2025.0.5-py2.py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:1339f5c33d16b7f8e951c8b904f22e8c635780a05c4892210b343d185bb60534", size = 18913, upload-time = "2025-03-06T13:43:04.375Z" },
+    { url = "https://files.pythonhosted.org/packages/83/b9/7ac88e49a14026446953c0d2cdf32198b043a10f0b43ad02e36c7b273501/intel_cmplr_lic_rt-2025.0.5-py2.py3-none-win_amd64.whl", hash = "sha256:2a37b5be844790664b7bf67aef33058103368face8ce1ff72643d6e2ffc3efbf", size = 49547, upload-time = "2025-02-11T10:59:46.543Z" },
+]
+
+[[package]]
+name = "intel-pti"
+version = "0.10.1"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f0/f2/313e46be14a27d4fb6eaab683a0c7589b0227549e2bf596fa6ccc0df8f8f/intel_pti-0.10.1-py2.py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:7e12361e8ac18996258c9d7f9ee831372c1c1c85028fa8502fb257e1dadf1de2", size = 678688, upload-time = "2025-02-20T11:29:43.507Z" },
+    { url = "https://files.pythonhosted.org/packages/da/49/ac4c5413ae249cc79c0f04d926942a2802d3e5b6186d4bfe67db841f53f9/intel_pti-0.10.1-py2.py3-none-win_amd64.whl", hash = "sha256:bf9418aff05dd6807f3130eaae874ab2c5f79bcbfa1eaae7ba9b5c8ff8290038", size = 437518, upload-time = "2025-02-20T11:29:40.533Z" },
+]
+
+[[package]]
+name = "intel-sycl-rt"
+version = "2025.0.4"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')",
+]
+dependencies = [
+    { name = "intel-cmplr-lib-rt", version = "2025.0.4", source = { registry = "https://pypi.org/simple" }, marker = "(sys_platform != 'win32' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "intel-cmplr-lib-ur", version = "2025.0.4", source = { registry = "https://pypi.org/simple" }, marker = "(sys_platform != 'win32' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "intel-cmplr-lic-rt", version = "2025.0.4", source = { registry = "https://pypi.org/simple" }, marker = "(sys_platform != 'win32' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/78/2b/3b99709cf8dd3304d05b853797a6fa962394ccf520536dc8e5eb9d3d9b1f/intel_sycl_rt-2025.0.4-py2.py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:85c5fd6029f62e8361af1d9ddb0f6c6f9cf4912bbe9ad684f89e9e5842128879", size = 12356130, upload-time = "2024-12-12T12:03:18.87Z" },
+    { url = "https://files.pythonhosted.org/packages/ce/4d/04f82c52676e97bddff8f0a4b2b66b0d75c971c9605c6f0c4ca2d0041661/intel_sycl_rt-2025.0.4-py2.py3-none-win_amd64.whl", hash = "sha256:fad1a7dee4d1d0469fced09079d86df1c71099518e2cc13f2edb633ac7bc592f", size = 9528469, upload-time = "2024-12-12T12:02:24.491Z" },
+]
+
+[[package]]
+name = "intel-sycl-rt"
+version = "2025.0.5"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "sys_platform == 'win32'",
+]
+dependencies = [
+    { name = "intel-cmplr-lib-rt", version = "2025.0.5", source = { registry = "https://pypi.org/simple" }, marker = "(sys_platform == 'win32' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "intel-cmplr-lib-ur", version = "2025.0.5", source = { registry = "https://pypi.org/simple" }, marker = "(sys_platform == 'win32' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "intel-cmplr-lic-rt", version = "2025.0.5", source = { registry = "https://pypi.org/simple" }, marker = "(sys_platform == 'win32' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/83/40/eb528ccbb04c19c2aba92da8857a2461b4781b56d9845aa12e68dcae6b6f/intel_sycl_rt-2025.0.5-py2.py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:a259ad62a3a93b27d85f8cd034f9953be75f904a44e6b516811c09c0a3535012", size = 12356129, upload-time = "2025-03-06T13:44:04.846Z" },
+    { url = "https://files.pythonhosted.org/packages/0c/11/46cb85d052bf13153f2cb3994dbfda6116a06bff55d209d04b3f424d94d6/intel_sycl_rt-2025.0.5-py2.py3-none-win_amd64.whl", hash = "sha256:10a322b5bb9a180cbeea45fe2c8603bff55f4dedf6302fff7f66dafc191ff580", size = 10786985, upload-time = "2025-02-11T10:59:35.055Z" },
 ]
 
 [[package]]
@@ -482,6 +637,8 @@ version = "12.6.4.1"
 source = { registry = "https://pypi.org/simple" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/af/eb/ff4b8c503fa1f1796679dce648854d58751982426e4e4b37d6fce49d259c/nvidia_cublas_cu12-12.6.4.1-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:08ed2686e9875d01b58e3cb379c6896df8e76c75e0d4a7f7dace3d7b6d9ef8eb", size = 393138322, upload-time = "2024-11-20T17:40:25.65Z" },
+    { url = "https://files.pythonhosted.org/packages/97/0d/f1f0cadbf69d5b9ef2e4f744c9466cb0a850741d08350736dfdb4aa89569/nvidia_cublas_cu12-12.6.4.1-py3-none-manylinux_2_27_aarch64.whl", hash = "sha256:235f728d6e2a409eddf1df58d5b0921cf80cfa9e72b9f2775ccb7b4a87984668", size = 390794615, upload-time = "2024-11-20T17:39:52.715Z" },
+    { url = "https://files.pythonhosted.org/packages/84/f7/985e9bdbe3e0ac9298fcc8cfa51a392862a46a0ffaccbbd56939b62a9c83/nvidia_cublas_cu12-12.6.4.1-py3-none-win_amd64.whl", hash = "sha256:9e4fa264f4d8a4eb0cdbd34beadc029f453b3bafae02401e999cf3d5a5af75f8", size = 434535301, upload-time = "2024-11-20T17:50:41.681Z" },
 ]
 
 [[package]]
@@ -489,8 +646,11 @@ name = "nvidia-cuda-cupti-cu12"
 version = "12.6.80"
 source = { registry = "https://pypi.org/simple" }
 wheels = [
+    { url = "https://files.pythonhosted.org/packages/e6/8b/2f6230cb715646c3a9425636e513227ce5c93c4d65823a734f4bb86d43c3/nvidia_cuda_cupti_cu12-12.6.80-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:166ee35a3ff1587f2490364f90eeeb8da06cd867bd5b701bf7f9a02b78bc63fc", size = 8236764, upload-time = "2024-11-20T17:35:41.03Z" },
+    { url = "https://files.pythonhosted.org/packages/25/0f/acb326ac8fd26e13c799e0b4f3b2751543e1834f04d62e729485872198d4/nvidia_cuda_cupti_cu12-12.6.80-py3-none-manylinux2014_aarch64.whl", hash = "sha256:358b4a1d35370353d52e12f0a7d1769fc01ff74a191689d3870b2123156184c4", size = 8236756, upload-time = "2024-10-01T16:57:45.507Z" },
     { url = "https://files.pythonhosted.org/packages/49/60/7b6497946d74bcf1de852a21824d63baad12cd417db4195fc1bfe59db953/nvidia_cuda_cupti_cu12-12.6.80-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:6768bad6cab4f19e8292125e5f1ac8aa7d1718704012a0e3272a6f61c4bce132", size = 8917980, upload-time = "2024-11-20T17:36:04.019Z" },
     { url = "https://files.pythonhosted.org/packages/a5/24/120ee57b218d9952c379d1e026c4479c9ece9997a4fb46303611ee48f038/nvidia_cuda_cupti_cu12-12.6.80-py3-none-manylinux2014_x86_64.whl", hash = "sha256:a3eff6cdfcc6a4c35db968a06fcadb061cbc7d6dde548609a941ff8701b98b73", size = 8917972, upload-time = "2024-10-01T16:58:06.036Z" },
+    { url = "https://files.pythonhosted.org/packages/1c/81/7796f096afaf726796b1b648f3bc80cafc61fe7f77f44a483c89e6c5ef34/nvidia_cuda_cupti_cu12-12.6.80-py3-none-win_amd64.whl", hash = "sha256:bbe6ae76e83ce5251b56e8c8e61a964f757175682bbad058b170b136266ab00a", size = 5724175, upload-time = "2024-10-01T17:09:47.955Z" },
 ]
 
 [[package]]
@@ -498,7 +658,9 @@ name = "nvidia-cuda-nvrtc-cu12"
 version = "12.6.77"
 source = { registry = "https://pypi.org/simple" }
 wheels = [
+    { url = "https://files.pythonhosted.org/packages/f4/2f/72df534873235983cc0a5371c3661bebef7c4682760c275590b972c7b0f9/nvidia_cuda_nvrtc_cu12-12.6.77-py3-none-manylinux2014_aarch64.whl", hash = "sha256:5847f1d6e5b757f1d2b3991a01082a44aad6f10ab3c5c0213fa3e25bddc25a13", size = 23162955, upload-time = "2024-10-01T16:59:50.922Z" },
     { url = "https://files.pythonhosted.org/packages/75/2e/46030320b5a80661e88039f59060d1790298b4718944a65a7f2aeda3d9e9/nvidia_cuda_nvrtc_cu12-12.6.77-py3-none-manylinux2014_x86_64.whl", hash = "sha256:35b0cc6ee3a9636d5409133e79273ce1f3fd087abb0532d2d2e8fff1fe9efc53", size = 23650380, upload-time = "2024-10-01T17:00:14.643Z" },
+    { url = "https://files.pythonhosted.org/packages/f5/46/d3a1cdda8bb113c80f43a0a6f3a853356d487b830f3483f92d49ce87fa55/nvidia_cuda_nvrtc_cu12-12.6.77-py3-none-win_amd64.whl", hash = "sha256:f7007dbd914c56bd80ea31bc43e8e149da38f68158f423ba845fc3292684e45a", size = 39026742, upload-time = "2024-10-01T17:10:49.058Z" },
 ]
 
 [[package]]
@@ -506,14 +668,16 @@ name = "nvidia-cuda-runtime-cu12"
 version = "12.6.77"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "(python_full_version >= '3.13' and platform_machine != 'aarch64' and sys_platform == 'linux') or (python_full_version >= '3.13' and sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')",
-    "(python_full_version < '3.13' and platform_machine != 'aarch64' and sys_platform == 'linux') or (python_full_version < '3.13' and sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')",
+    "sys_platform == 'darwin'",
+    "platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')",
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/8f/ea/590b2ac00d772a8abd1c387a92b46486d2679ca6622fd25c18ff76265663/nvidia_cuda_runtime_cu12-12.6.77-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:6116fad3e049e04791c0256a9778c16237837c08b27ed8c8401e2e45de8d60cd", size = 908052, upload-time = "2024-11-20T17:35:19.905Z" },
     { url = "https://files.pythonhosted.org/packages/b7/3d/159023799677126e20c8fd580cca09eeb28d5c5a624adc7f793b9aa8bbfa/nvidia_cuda_runtime_cu12-12.6.77-py3-none-manylinux2014_aarch64.whl", hash = "sha256:d461264ecb429c84c8879a7153499ddc7b19b5f8d84c204307491989a365588e", size = 908040, upload-time = "2024-10-01T16:57:22.221Z" },
     { url = "https://files.pythonhosted.org/packages/e1/23/e717c5ac26d26cf39a27fbc076240fad2e3b817e5889d671b67f4f9f49c5/nvidia_cuda_runtime_cu12-12.6.77-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:ba3b56a4f896141e25e19ab287cd71e52a6a0f4b29d0d31609f60e3b4d5219b7", size = 897690, upload-time = "2024-11-20T17:35:30.697Z" },
     { url = "https://files.pythonhosted.org/packages/f0/62/65c05e161eeddbafeca24dc461f47de550d9fa8a7e04eb213e32b55cfd99/nvidia_cuda_runtime_cu12-12.6.77-py3-none-manylinux2014_x86_64.whl", hash = "sha256:a84d15d5e1da416dd4774cb42edf5e954a3e60cc945698dc1d5be02321c44dc8", size = 897678, upload-time = "2024-10-01T16:57:33.821Z" },
+    { url = "https://files.pythonhosted.org/packages/fa/76/4c80fa138333cc975743fd0687a745fccb30d167f906f13c1c7f9a85e5ea/nvidia_cuda_runtime_cu12-12.6.77-py3-none-win_amd64.whl", hash = "sha256:86c58044c824bf3c173c49a2dbc7a6c8b53cb4e4dca50068be0bf64e9dab3f7f", size = 891773, upload-time = "2024-10-01T17:09:26.362Z" },
 ]
 
 [[package]]
@@ -521,12 +685,7 @@ name = "nvidia-cuda-runtime-cu12"
 version = "12.9.37"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.13' and sys_platform == 'win32'",
-    "python_full_version < '3.13' and sys_platform == 'win32'",
-    "python_full_version >= '3.13' and sys_platform == 'darwin'",
-    "python_full_version < '3.13' and sys_platform == 'darwin'",
-    "python_full_version >= '3.13' and platform_machine == 'aarch64' and sys_platform == 'linux'",
-    "python_full_version < '3.13' and platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "sys_platform == 'win32'",
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/64/fc/0efcb40754e694eafd7356f005e909706f61888c6896752db5c5430dd10c/nvidia_cuda_runtime_cu12-12.9.37-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:4f981cb23568cb26063cfacd4291bf65f5fbd75ac9abe98ba846aa212ecd59c4", size = 3511941, upload-time = "2025-05-01T19:32:23.335Z" },
@@ -539,10 +698,12 @@ name = "nvidia-cudnn-cu12"
 version = "9.5.1.17"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "nvidia-cublas-cu12", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')" },
+    { name = "nvidia-cublas-cu12", marker = "sys_platform != 'win32'" },
 ]
 wheels = [
+    { url = "https://files.pythonhosted.org/packages/99/93/a201a12d3ec1caa8c6ac34c1c2f9eeb696b886f0c36ff23c638b46603bd0/nvidia_cudnn_cu12-9.5.1.17-py3-none-manylinux_2_28_aarch64.whl", hash = "sha256:9fd4584468533c61873e5fda8ca41bac3a38bcb2d12350830c69b0a96a7e4def", size = 570523509, upload-time = "2024-10-25T19:53:03.148Z" },
     { url = "https://files.pythonhosted.org/packages/2a/78/4535c9c7f859a64781e43c969a3a7e84c54634e319a996d43ef32ce46f83/nvidia_cudnn_cu12-9.5.1.17-py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:30ac3869f6db17d170e0e556dd6cc5eee02647abc31ca856634d5a40f82c15b2", size = 570988386, upload-time = "2024-10-25T19:54:26.39Z" },
+    { url = "https://files.pythonhosted.org/packages/b6/b2/3f60d15f037fa5419d9d7f788b100ef33ea913ae5315c87ca6d6fa606c35/nvidia_cudnn_cu12-9.5.1.17-py3-none-win_amd64.whl", hash = "sha256:d7af0f8a4f3b4b9dbb3122f2ef553b45694ed9c384d5a75bab197b8eefb79ab8", size = 565440743, upload-time = "2024-10-25T19:55:49.74Z" },
 ]
 
 [[package]]
@@ -550,11 +711,14 @@ name = "nvidia-cufft-cu12"
 version = "11.3.0.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "nvidia-nvjitlink-cu12", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')" },
+    { name = "nvidia-nvjitlink-cu12", marker = "sys_platform != 'win32'" },
 ]
 wheels = [
+    { url = "https://files.pythonhosted.org/packages/1f/37/c50d2b2f2c07e146776389e3080f4faf70bcc4fa6e19d65bb54ca174ebc3/nvidia_cufft_cu12-11.3.0.4-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:d16079550df460376455cba121db6564089176d9bac9e4f360493ca4741b22a6", size = 200164144, upload-time = "2024-11-20T17:40:58.288Z" },
+    { url = "https://files.pythonhosted.org/packages/ce/f5/188566814b7339e893f8d210d3a5332352b1409815908dad6a363dcceac1/nvidia_cufft_cu12-11.3.0.4-py3-none-manylinux2014_aarch64.whl", hash = "sha256:8510990de9f96c803a051822618d42bf6cb8f069ff3f48d93a8486efdacb48fb", size = 200164135, upload-time = "2024-10-01T17:03:24.212Z" },
     { url = "https://files.pythonhosted.org/packages/8f/16/73727675941ab8e6ffd86ca3a4b7b47065edcca7a997920b831f8147c99d/nvidia_cufft_cu12-11.3.0.4-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:ccba62eb9cef5559abd5e0d54ceed2d9934030f51163df018532142a8ec533e5", size = 200221632, upload-time = "2024-11-20T17:41:32.357Z" },
     { url = "https://files.pythonhosted.org/packages/60/de/99ec247a07ea40c969d904fc14f3a356b3e2a704121675b75c366b694ee1/nvidia_cufft_cu12-11.3.0.4-py3-none-manylinux2014_x86_64.whl", hash = "sha256:768160ac89f6f7b459bee747e8d175dbf53619cfe74b2a5636264163138013ca", size = 200221622, upload-time = "2024-10-01T17:03:58.79Z" },
+    { url = "https://files.pythonhosted.org/packages/b4/38/36fd800cec8f6e89b7c1576edaaf8076e69ec631644cdbc1b5f2e2b5a9df/nvidia_cufft_cu12-11.3.0.4-py3-none-win_amd64.whl", hash = "sha256:6048ebddfb90d09d2707efb1fd78d4e3a77cb3ae4dc60e19aab6be0ece2ae464", size = 199356881, upload-time = "2024-10-01T17:13:01.861Z" },
 ]
 
 [[package]]
@@ -563,6 +727,7 @@ version = "1.11.1.6"
 source = { registry = "https://pypi.org/simple" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b2/66/cc9876340ac68ae71b15c743ddb13f8b30d5244af344ec8322b449e35426/nvidia_cufile_cu12-1.11.1.6-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:cc23469d1c7e52ce6c1d55253273d32c565dd22068647f3aa59b3c6b005bf159", size = 1142103, upload-time = "2024-11-20T17:42:11.83Z" },
+    { url = "https://files.pythonhosted.org/packages/17/bf/cc834147263b929229ce4aadd62869f0b195e98569d4c28b23edc72b85d9/nvidia_cufile_cu12-1.11.1.6-py3-none-manylinux_2_27_aarch64.whl", hash = "sha256:8f57a0051dcf2543f6dc2b98a98cb2719c37d3cee1baba8965d57f3bbc90d4db", size = 1066155, upload-time = "2024-11-20T17:41:49.376Z" },
 ]
 
 [[package]]
@@ -570,8 +735,11 @@ name = "nvidia-curand-cu12"
 version = "10.3.7.77"
 source = { registry = "https://pypi.org/simple" }
 wheels = [
+    { url = "https://files.pythonhosted.org/packages/42/ac/36543605358a355632f1a6faa3e2d5dfb91eab1e4bc7d552040e0383c335/nvidia_curand_cu12-10.3.7.77-py3-none-manylinux2014_aarch64.whl", hash = "sha256:6e82df077060ea28e37f48a3ec442a8f47690c7499bff392a5938614b56c98d8", size = 56289881, upload-time = "2024-10-01T17:04:18.981Z" },
     { url = "https://files.pythonhosted.org/packages/73/1b/44a01c4e70933637c93e6e1a8063d1e998b50213a6b65ac5a9169c47e98e/nvidia_curand_cu12-10.3.7.77-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:a42cd1344297f70b9e39a1e4f467a4e1c10f1da54ff7a85c12197f6c652c8bdf", size = 56279010, upload-time = "2024-11-20T17:42:50.958Z" },
     { url = "https://files.pythonhosted.org/packages/4a/aa/2c7ff0b5ee02eaef890c0ce7d4f74bc30901871c5e45dee1ae6d0083cd80/nvidia_curand_cu12-10.3.7.77-py3-none-manylinux2014_x86_64.whl", hash = "sha256:99f1a32f1ac2bd134897fc7a203f779303261268a65762a623bf30cc9fe79117", size = 56279000, upload-time = "2024-10-01T17:04:45.274Z" },
+    { url = "https://files.pythonhosted.org/packages/a6/02/5362a9396f23f7de1dd8a64369e87c85ffff8216fc8194ace0fa45ba27a5/nvidia_curand_cu12-10.3.7.77-py3-none-manylinux_2_27_aarch64.whl", hash = "sha256:7b2ed8e95595c3591d984ea3603dd66fe6ce6812b886d59049988a712ed06b6e", size = 56289882, upload-time = "2024-11-20T17:42:25.222Z" },
+    { url = "https://files.pythonhosted.org/packages/a9/a8/0cd0cec757bd4b4b4ef150fca62ec064db7d08a291dced835a0be7d2c147/nvidia_curand_cu12-10.3.7.77-py3-none-win_amd64.whl", hash = "sha256:6d6d935ffba0f3d439b7cd968192ff068fafd9018dbf1b85b37261b13cfc9905", size = 55783873, upload-time = "2024-10-01T17:13:30.377Z" },
 ]
 
 [[package]]
@@ -579,13 +747,16 @@ name = "nvidia-cusolver-cu12"
 version = "11.7.1.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "nvidia-cublas-cu12", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')" },
-    { name = "nvidia-cusparse-cu12", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')" },
-    { name = "nvidia-nvjitlink-cu12", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')" },
+    { name = "nvidia-cublas-cu12", marker = "sys_platform != 'win32'" },
+    { name = "nvidia-cusparse-cu12", marker = "sys_platform != 'win32'" },
+    { name = "nvidia-nvjitlink-cu12", marker = "sys_platform != 'win32'" },
 ]
 wheels = [
+    { url = "https://files.pythonhosted.org/packages/93/17/dbe1aa865e4fdc7b6d4d0dd308fdd5aaab60f939abfc0ea1954eac4fb113/nvidia_cusolver_cu12-11.7.1.2-py3-none-manylinux2014_aarch64.whl", hash = "sha256:0ce237ef60acde1efc457335a2ddadfd7610b892d94efee7b776c64bb1cac9e0", size = 157833628, upload-time = "2024-10-01T17:05:05.591Z" },
     { url = "https://files.pythonhosted.org/packages/f0/6e/c2cf12c9ff8b872e92b4a5740701e51ff17689c4d726fca91875b07f655d/nvidia_cusolver_cu12-11.7.1.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:e9e49843a7707e42022babb9bcfa33c29857a93b88020c4e4434656a655b698c", size = 158229790, upload-time = "2024-11-20T17:43:43.211Z" },
     { url = "https://files.pythonhosted.org/packages/9f/81/baba53585da791d043c10084cf9553e074548408e04ae884cfe9193bd484/nvidia_cusolver_cu12-11.7.1.2-py3-none-manylinux2014_x86_64.whl", hash = "sha256:6cf28f17f64107a0c4d7802be5ff5537b2130bfc112f25d5a30df227058ca0e6", size = 158229780, upload-time = "2024-10-01T17:05:39.875Z" },
+    { url = "https://files.pythonhosted.org/packages/7c/5f/07d0ba3b7f19be5a5ec32a8679fc9384cfd9fc6c869825e93be9f28d6690/nvidia_cusolver_cu12-11.7.1.2-py3-none-manylinux_2_27_aarch64.whl", hash = "sha256:dbbe4fc38ec1289c7e5230e16248365e375c3673c9c8bac5796e2e20db07f56e", size = 157833630, upload-time = "2024-11-20T17:43:16.77Z" },
+    { url = "https://files.pythonhosted.org/packages/d4/53/fff50a0808df7113d77e3bbc7c2b7eaed6f57d5eb80fbe93ead2aea1e09a/nvidia_cusolver_cu12-11.7.1.2-py3-none-win_amd64.whl", hash = "sha256:6813f9d8073f555444a8705f3ab0296d3e1cb37a16d694c5fc8b862a0d8706d7", size = 149287877, upload-time = "2024-10-01T17:13:49.804Z" },
 ]
 
 [[package]]
@@ -593,11 +764,14 @@ name = "nvidia-cusparse-cu12"
 version = "12.5.4.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "nvidia-nvjitlink-cu12", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')" },
+    { name = "nvidia-nvjitlink-cu12", marker = "sys_platform != 'win32'" },
 ]
 wheels = [
+    { url = "https://files.pythonhosted.org/packages/eb/eb/6681efd0aa7df96b4f8067b3ce7246833dd36830bb4cec8896182773db7d/nvidia_cusparse_cu12-12.5.4.2-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:d25b62fb18751758fe3c93a4a08eff08effedfe4edf1c6bb5afd0890fe88f887", size = 216451147, upload-time = "2024-11-20T17:44:18.055Z" },
+    { url = "https://files.pythonhosted.org/packages/d3/56/3af21e43014eb40134dea004e8d0f1ef19d9596a39e4d497d5a7de01669f/nvidia_cusparse_cu12-12.5.4.2-py3-none-manylinux2014_aarch64.whl", hash = "sha256:7aa32fa5470cf754f72d1116c7cbc300b4e638d3ae5304cfa4a638a5b87161b1", size = 216451135, upload-time = "2024-10-01T17:06:03.826Z" },
     { url = "https://files.pythonhosted.org/packages/06/1e/b8b7c2f4099a37b96af5c9bb158632ea9e5d9d27d7391d7eb8fc45236674/nvidia_cusparse_cu12-12.5.4.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:7556d9eca156e18184b94947ade0fba5bb47d69cec46bf8660fd2c71a4b48b73", size = 216561367, upload-time = "2024-11-20T17:44:54.824Z" },
     { url = "https://files.pythonhosted.org/packages/43/ac/64c4316ba163e8217a99680c7605f779accffc6a4bcd0c778c12948d3707/nvidia_cusparse_cu12-12.5.4.2-py3-none-manylinux2014_x86_64.whl", hash = "sha256:23749a6571191a215cb74d1cdbff4a86e7b19f1200c071b3fcf844a5bea23a2f", size = 216561357, upload-time = "2024-10-01T17:06:29.861Z" },
+    { url = "https://files.pythonhosted.org/packages/45/ef/876ad8e4260e1128e6d4aac803d9d51baf3791ebdb4a9b8d9b8db032b4b0/nvidia_cusparse_cu12-12.5.4.2-py3-none-win_amd64.whl", hash = "sha256:4acb8c08855a26d737398cba8fb6f8f5045d93f82612b4cfd84645a2332ccf20", size = 213712630, upload-time = "2024-10-01T17:14:23.779Z" },
 ]
 
 [[package]]
@@ -605,7 +779,9 @@ name = "nvidia-cusparselt-cu12"
 version = "0.6.3"
 source = { registry = "https://pypi.org/simple" }
 wheels = [
+    { url = "https://files.pythonhosted.org/packages/62/da/4de092c61c6dea1fc9c936e69308a02531d122e12f1f649825934ad651b5/nvidia_cusparselt_cu12-0.6.3-py3-none-manylinux2014_aarch64.whl", hash = "sha256:8371549623ba601a06322af2133c4a44350575f5a3108fb75f3ef20b822ad5f1", size = 156402859, upload-time = "2024-10-16T02:23:17.184Z" },
     { url = "https://files.pythonhosted.org/packages/3b/9a/72ef35b399b0e183bc2e8f6f558036922d453c4d8237dab26c666a04244b/nvidia_cusparselt_cu12-0.6.3-py3-none-manylinux2014_x86_64.whl", hash = "sha256:e5c8a26c36445dd2e6812f1177978a24e2d37cacce7e090f297a688d1ec44f46", size = 156785796, upload-time = "2024-10-15T21:29:17.709Z" },
+    { url = "https://files.pythonhosted.org/packages/46/3e/9e1e394a02a06f694be2c97bbe47288bb7c90ea84c7e9cf88f7b28afe165/nvidia_cusparselt_cu12-0.6.3-py3-none-win_amd64.whl", hash = "sha256:3b325bcbd9b754ba43df5a311488fca11a6b5dc3d11df4d190c000cf1a0765c7", size = 155595972, upload-time = "2024-10-15T22:58:35.426Z" },
 ]
 
 [[package]]
@@ -613,6 +789,7 @@ name = "nvidia-nccl-cu12"
 version = "2.26.2"
 source = { registry = "https://pypi.org/simple" }
 wheels = [
+    { url = "https://files.pythonhosted.org/packages/69/5b/ca2f213f637305633814ae8c36b153220e40a07ea001966dcd87391f3acb/nvidia_nccl_cu12-2.26.2-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:5c196e95e832ad30fbbb50381eb3cbd1fadd5675e587a548563993609af19522", size = 291671495, upload-time = "2025-03-13T00:30:07.805Z" },
     { url = "https://files.pythonhosted.org/packages/67/ca/f42388aed0fddd64ade7493dbba36e1f534d4e6fdbdd355c6a90030ae028/nvidia_nccl_cu12-2.26.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:694cf3879a206553cc9d7dbda76b13efaf610fdb70a50cba303de1b0d1530ac6", size = 201319755, upload-time = "2025-03-13T00:29:55.296Z" },
 ]
 
@@ -622,6 +799,8 @@ version = "12.6.85"
 source = { registry = "https://pypi.org/simple" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/9d/d7/c5383e47c7e9bf1c99d5bd2a8c935af2b6d705ad831a7ec5c97db4d82f4f/nvidia_nvjitlink_cu12-12.6.85-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl", hash = "sha256:eedc36df9e88b682efe4309aa16b5b4e78c2407eac59e8c10a6a47535164369a", size = 19744971, upload-time = "2024-11-20T17:46:53.366Z" },
+    { url = "https://files.pythonhosted.org/packages/31/db/dc71113d441f208cdfe7ae10d4983884e13f464a6252450693365e166dcf/nvidia_nvjitlink_cu12-12.6.85-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:cf4eaa7d4b6b543ffd69d6abfb11efdeb2db48270d94dfd3a452c24150829e41", size = 19270338, upload-time = "2024-11-20T17:46:29.758Z" },
+    { url = "https://files.pythonhosted.org/packages/89/76/93c1467b1387387440a4d25102d86b7794535449b689f8e2dc22c1c8ff7f/nvidia_nvjitlink_cu12-12.6.85-py3-none-win_amd64.whl", hash = "sha256:e61120e52ed675747825cdd16febc6a0730537451d867ee58bee3853b1b13d1c", size = 161908572, upload-time = "2024-11-20T17:52:40.124Z" },
 ]
 
 [[package]]
@@ -629,8 +808,11 @@ name = "nvidia-nvtx-cu12"
 version = "12.6.77"
 source = { registry = "https://pypi.org/simple" }
 wheels = [
+    { url = "https://files.pythonhosted.org/packages/b9/93/80f8a520375af9d7ee44571a6544653a176e53c2b8ccce85b97b83c2491b/nvidia_nvtx_cu12-12.6.77-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:f44f8d86bb7d5629988d61c8d3ae61dddb2015dee142740536bc7481b022fe4b", size = 90549, upload-time = "2024-11-20T17:38:17.387Z" },
+    { url = "https://files.pythonhosted.org/packages/2b/53/36e2fd6c7068997169b49ffc8c12d5af5e5ff209df6e1a2c4d373b3a638f/nvidia_nvtx_cu12-12.6.77-py3-none-manylinux2014_aarch64.whl", hash = "sha256:adcaabb9d436c9761fca2b13959a2d237c5f9fd406c8e4b723c695409ff88059", size = 90539, upload-time = "2024-10-01T17:00:27.179Z" },
     { url = "https://files.pythonhosted.org/packages/56/9a/fff8376f8e3d084cd1530e1ef7b879bb7d6d265620c95c1b322725c694f4/nvidia_nvtx_cu12-12.6.77-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:b90bed3df379fa79afbd21be8e04a0314336b8ae16768b58f2d34cb1d04cd7d2", size = 89276, upload-time = "2024-11-20T17:38:27.621Z" },
     { url = "https://files.pythonhosted.org/packages/9e/4e/0d0c945463719429b7bd21dece907ad0bde437a2ff12b9b12fee94722ab0/nvidia_nvtx_cu12-12.6.77-py3-none-manylinux2014_x86_64.whl", hash = "sha256:6574241a3ec5fdc9334353ab8c479fe75841dbe8f4532a8fc97ce63503330ba1", size = 89265, upload-time = "2024-10-01T17:00:38.172Z" },
+    { url = "https://files.pythonhosted.org/packages/f7/cd/98a447919d4ed14d407ac82b14b0a0c9c1dbfe81099934b1fc3bfd1e6316/nvidia_nvtx_cu12-12.6.77-py3-none-win_amd64.whl", hash = "sha256:2fb11a4af04a5e6c84073e6404d26588a34afd35379f0855a99797897efa75c0", size = 56434, upload-time = "2024-10-01T17:11:13.124Z" },
 ]
 
 [[package]]
@@ -651,8 +833,8 @@ wheels = [
 ]
 
 [[package]]
-name = "onnxruntime-gpu"
-version = "1.21.1"
+name = "onnxruntime"
+version = "1.22.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "coloredlogs" },
@@ -663,25 +845,67 @@ dependencies = [
     { name = "sympy" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b2/b4/0ee7be1326a1aa19ee8d87b7474b0248736627f430dd0d314e65fac56d6c/onnxruntime_gpu-1.21.1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:968123d2668add079548980999edfd35fb6317cad9c35c0798fc0665591003f0", size = 280812383, upload-time = "2025-04-18T12:08:20.998Z" },
-    { url = "https://files.pythonhosted.org/packages/dc/ad/a9199df9350b5fee6b7377d3af03ed45a2ef162feb10679b0bc10f270515/onnxruntime_gpu-1.21.1-cp312-cp312-win_amd64.whl", hash = "sha256:5c1885a46061c5f5e0ca26256d8e338db9ea0428867754bd93e517bcb0a3899c", size = 213081642, upload-time = "2025-04-18T12:02:46.786Z" },
-    { url = "https://files.pythonhosted.org/packages/c2/6f/63eff0b806648f3008114b5b78e8e087e39ef8b2e077f77ffe3cbf8237b9/onnxruntime_gpu-1.21.1-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:1405e953da84e5a9463c467d86c3fd46a50f4dc767c87c3682d9fabf0a0e2251", size = 280809517, upload-time = "2025-04-18T12:08:36.582Z" },
-    { url = "https://files.pythonhosted.org/packages/84/d6/88899b113133644beeec4c9cfc9c0ec31d4bd16fa5edf2e0816484102be3/onnxruntime_gpu-1.21.1-cp313-cp313-win_amd64.whl", hash = "sha256:69f407ec2e5f8b409d2729191708cbad5b95539b6d5f7a28dac1aa9f9f644bf9", size = 213081751, upload-time = "2025-04-18T12:02:56.446Z" },
-    { url = "https://files.pythonhosted.org/packages/18/95/5d573da5c9fe00ac66de6cbf6dc701314dbacc2f0fa2f4b1b25284b0fa62/onnxruntime_gpu-1.21.1-cp313-cp313t-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:dd2056e7cadcec184b1014dc4f8484e1458a633d6db8262f88c0148ef1e572a6", size = 280806546, upload-time = "2025-04-18T12:08:50.242Z" },
+    { url = "https://files.pythonhosted.org/packages/4d/de/9162872c6e502e9ac8c99a98a8738b2fab408123d11de55022ac4f92562a/onnxruntime-1.22.0-cp312-cp312-macosx_13_0_universal2.whl", hash = "sha256:f3c0380f53c1e72a41b3f4d6af2ccc01df2c17844072233442c3a7e74851ab97", size = 34298046, upload-time = "2025-05-09T20:26:02.399Z" },
+    { url = "https://files.pythonhosted.org/packages/03/79/36f910cd9fc96b444b0e728bba14607016079786adf032dae61f7c63b4aa/onnxruntime-1.22.0-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:c8601128eaef79b636152aea76ae6981b7c9fc81a618f584c15d78d42b310f1c", size = 14443220, upload-time = "2025-05-09T20:25:47.078Z" },
+    { url = "https://files.pythonhosted.org/packages/8c/60/16d219b8868cc8e8e51a68519873bdb9f5f24af080b62e917a13fff9989b/onnxruntime-1.22.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:6964a975731afc19dc3418fad8d4e08c48920144ff590149429a5ebe0d15fb3c", size = 16406377, upload-time = "2025-05-09T20:26:14.478Z" },
+    { url = "https://files.pythonhosted.org/packages/a9/65/5cb5018d5b0b7cba820d2c4a1d1b02d40df538d49138ba36a509457e4df6/onnxruntime-1.22.0-cp313-cp313-macosx_13_0_universal2.whl", hash = "sha256:fe7c051236aae16d8e2e9ffbfc1e115a0cc2450e873a9c4cb75c0cc96c1dae07", size = 34298715, upload-time = "2025-05-09T20:26:05.634Z" },
+    { url = "https://files.pythonhosted.org/packages/e1/89/1dfe1b368831d1256b90b95cb8d11da8ab769febd5c8833ec85ec1f79d21/onnxruntime-1.22.0-cp313-cp313-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:6a6bbed10bc5e770c04d422893d3045b81acbbadc9fb759a2cd1ca00993da919", size = 14443266, upload-time = "2025-05-09T20:25:49.479Z" },
+    { url = "https://files.pythonhosted.org/packages/1e/70/342514ade3a33ad9dd505dcee96ff1f0e7be6d0e6e9c911fe0f1505abf42/onnxruntime-1.22.0-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:9fe45ee3e756300fccfd8d61b91129a121d3d80e9d38e01f03ff1295badc32b8", size = 16406707, upload-time = "2025-05-09T20:26:17.454Z" },
+    { url = "https://files.pythonhosted.org/packages/9f/48/d61d5f1ed098161edd88c56cbac49207d7b7b149e613d2cd7e33176c63b3/onnxruntime-1.22.0-cp313-cp313t-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:0a2ac5bd9205d831541db4e508e586e764a74f14efdd3f89af7fd20e1bf4a1ed", size = 14454003, upload-time = "2025-05-09T20:25:52.287Z" },
+    { url = "https://files.pythonhosted.org/packages/c3/16/873b955beda7bada5b0d798d3a601b2ff210e44ad5169f6d405b93892103/onnxruntime-1.22.0-cp313-cp313t-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:64845709f9e8a2809e8e009bc4c8f73b788cee9c6619b7d9930344eae4c9cd36", size = 16427482, upload-time = "2025-05-09T20:26:20.376Z" },
+]
+
+[[package]]
+name = "onnxruntime-gpu"
+version = "1.22.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "coloredlogs" },
+    { name = "flatbuffers" },
+    { name = "numpy" },
+    { name = "packaging" },
+    { name = "protobuf" },
+    { name = "sympy" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b5/5c/3f9700ba277d52c121dd2cebc8a672fb60b53e888972fc6682b6692a766c/onnxruntime_gpu-1.22.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:86b064c8f6cbe6da03f51f46351237d985f8fd5eb907d3f9997ea91881131a13", size = 283199528, upload-time = "2025-05-09T19:39:54.489Z" },
+    { url = "https://files.pythonhosted.org/packages/48/9e/f95af15627c8b9f866f2e372e467a9f1e14e7ebec224ed4b8e71ce970c81/onnxruntime_gpu-1.22.0-cp312-cp312-win_amd64.whl", hash = "sha256:89cfd71e1ba17a4668e8770e344f22cde64bfd70b2ad3d03b8a390d4414b5995", size = 214923964, upload-time = "2025-05-09T19:33:04.028Z" },
+    { url = "https://files.pythonhosted.org/packages/ae/26/35efe9dae012f453f2f7698dec3604368ce91ee2a0464336d2284fe02e3b/onnxruntime_gpu-1.22.0-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:c3e635792931c5edf48a6a44b8daf4f74a9458e2d60245d24d91e29b6c1c7aa5", size = 283205630, upload-time = "2025-05-09T19:40:12.749Z" },
+    { url = "https://files.pythonhosted.org/packages/7f/d8/0063e4973c54d3b39d6b3025a31f80bfda6386fa0eb16fc047f2fe724832/onnxruntime_gpu-1.22.0-cp313-cp313-win_amd64.whl", hash = "sha256:082c9744b0470448a7d814babe058d0b5074380f32839aa655e5e5f9975f6d94", size = 214924126, upload-time = "2025-05-09T19:33:14.647Z" },
+    { url = "https://files.pythonhosted.org/packages/d7/ab/943c659cded9288519c67e6d5827973762207d19035972c703a1fefd032c/onnxruntime_gpu-1.22.0-cp313-cp313t-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:d1559033601d71023d72a8e279b2575a104de5f46e136f87534206aa2044eb1c", size = 283210584, upload-time = "2025-05-09T19:40:27.372Z" },
+]
+
+[[package]]
+name = "onnxruntime-openvino"
+version = "1.21.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "coloredlogs" },
+    { name = "flatbuffers" },
+    { name = "numpy" },
+    { name = "packaging" },
+    { name = "protobuf" },
+    { name = "sympy" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/5e/96/ae026bc45cb5d0f81233c8ca4cfc6fae8a304f86264f4f4d6dba54015442/onnxruntime_openvino-1.21.0-cp312-cp312-manylinux_2_28_x86_64.whl", hash = "sha256:4807a64c16f15b3151f0f3a792e30114dfac7ff2be40f2225f1fd3d9ea098143", size = 64528311, upload-time = "2025-04-09T15:39:47.293Z" },
+    { url = "https://files.pythonhosted.org/packages/53/88/333c612dd8e094cd4b0aa8c5bc630c87568de5a1d6b74898a8e75b761b7c/onnxruntime_openvino-1.21.0-cp312-cp312-win_amd64.whl", hash = "sha256:06be5c01e727b84db41396c731bed7bb0319d99ba7313e14cb820e24dd33747e", size = 11822667, upload-time = "2025-04-09T15:39:51.427Z" },
+    { url = "https://files.pythonhosted.org/packages/31/80/fb072e6f886298163d0b2a6d5bede3f6fc3ba3f7ae771e5211808774209e/onnxruntime_openvino-1.21.0-cp313-cp313-manylinux_2_28_x86_64.whl", hash = "sha256:697b7eadbda921ba768cfc5734e82f6311d9d534cf569be664ec6d4aac22e935", size = 64527504, upload-time = "2025-04-09T15:39:57.116Z" },
+    { url = "https://files.pythonhosted.org/packages/2d/ad/3fce60454db901fab092a041dda6ec2e3788b22ba3986bd35140bcadc98b/onnxruntime_openvino-1.21.0-cp313-cp313-win_amd64.whl", hash = "sha256:73e8bc1ad3ae6d6eb9eaa38233e1f6807000b9e0b55ee02fa813f5e143db1eab", size = 11822920, upload-time = "2025-04-09T15:40:02.533Z" },
 ]
 
 [[package]]
 name = "onnxslim"
-version = "0.1.51"
+version = "0.1.52"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "onnx" },
     { name = "packaging" },
     { name = "sympy" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/e1/6c/291f68c5c73f6f687f8d29a14c9a814ff418f4f130c9744cfedf91ab8f34/onnxslim-0.1.51.tar.gz", hash = "sha256:447d149cc449becfa54ff61b9497121354df940a2c24b0775f00fc5e1a9276cc", size = 122955, upload-time = "2025-05-02T18:39:10.122Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/71/da/ae573ea67dae2da28a8b5a2b2c1f361f34cf70e56c766bc6728a7a97cdab/onnxslim-0.1.52.tar.gz", hash = "sha256:3d9d35b90ebbc7bd7a94bfc7209bef0fe8259af4adeee981825449e70622c0b9", size = 122945, upload-time = "2025-05-09T15:36:16.21Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/25/8e/5fac312d81ba84fcaa0f5960064a768e1e9da3868d3a130961747acac8e6/onnxslim-0.1.51-py3-none-any.whl", hash = "sha256:4f6a001957192a0017c9f733d31d33b3872eebbeb6a8cc49a0874e8e0e00e041", size = 145559, upload-time = "2025-05-02T18:39:08.53Z" },
+    { url = "https://files.pythonhosted.org/packages/0f/18/119b392861ffe56acb84c0f584b1056a5358b4f2a23f5ff6714fba68ed67/onnxslim-0.1.52-py3-none-any.whl", hash = "sha256:370b0cc4be40b92acb93008c3c3b2c32d071c32d1c554c21a2bd424f67dc251e", size = 145577, upload-time = "2025-05-09T15:36:15.082Z" },
 ]
 
 [[package]]
@@ -894,6 +1118,22 @@ wheels = [
 ]
 
 [[package]]
+name = "pytorch-triton-xpu"
+version = "3.3.0"
+source = { registry = "https://download.pytorch.org/whl/xpu" }
+dependencies = [
+    { name = "setuptools", marker = "(extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra != 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+]
+wheels = [
+    { url = "https://download.pytorch.org/whl/pytorch_triton_xpu-3.3.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:40f6fb65b345dc9a61813abe7ac9a585f2c9808f414d140cc2a5f11f53ee063c" },
+    { url = "https://download.pytorch.org/whl/pytorch_triton_xpu-3.3.0-cp312-cp312-win_amd64.whl", hash = "sha256:0dd07e6d5b872e42e48f5ee140e609d4554ca3cc509d5bf509ac232267cf358e" },
+    { url = "https://download.pytorch.org/whl/pytorch_triton_xpu-3.3.0-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:b22b4c02ec71b4bfc862ae3cdfd2871dc0b05d2b1802f5db2196e0f897d581e9" },
+    { url = "https://download.pytorch.org/whl/pytorch_triton_xpu-3.3.0-cp313-cp313-win_amd64.whl", hash = "sha256:a936a18182d8e065a9933afc9a3ebbffadd38604969f87c493831214539fc027" },
+    { url = "https://download.pytorch.org/whl/pytorch_triton_xpu-3.3.0-cp313-cp313t-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:9821fe059de58e827ffc6aa10d69369b16c2f8c2a988b86bef9c2c6e396ab3aa" },
+    { url = "https://download.pytorch.org/whl/pytorch_triton_xpu-3.3.0-cp313-cp313t-win_amd64.whl", hash = "sha256:07c18df9202c4dd30096ba22e36335cd5db827e83f110091b763fbd066498f3e" },
+]
+
+[[package]]
 name = "pytz"
 version = "2025.2"
 source = { registry = "https://pypi.org/simple" }
@@ -1002,11 +1242,11 @@ wheels = [
 
 [[package]]
 name = "setuptools"
-version = "80.3.1"
+version = "80.4.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/70/dc/3976b322de9d2e87ed0007cf04cc7553969b6c7b3f48a565d0333748fbcd/setuptools-80.3.1.tar.gz", hash = "sha256:31e2c58dbb67c99c289f51c16d899afedae292b978f8051efaf6262d8212f927", size = 1315082, upload-time = "2025-05-04T18:47:04.397Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/95/32/0cc40fe41fd2adb80a2f388987f4f8db3c866c69e33e0b4c8b093fdf700e/setuptools-80.4.0.tar.gz", hash = "sha256:5a78f61820bc088c8e4add52932ae6b8cf423da2aff268c23f813cfbb13b4006", size = 1315008, upload-time = "2025-05-09T20:42:27.972Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/53/7e/5d8af3317ddbf9519b687bd1c39d8737fde07d97f54df65553faca5cffb1/setuptools-80.3.1-py3-none-any.whl", hash = "sha256:ea8e00d7992054c4c592aeb892f6ad51fe1b4d90cc6947cc45c45717c40ec537", size = 1201172, upload-time = "2025-05-04T18:47:02.575Z" },
+    { url = "https://files.pythonhosted.org/packages/b1/93/dba5ed08c2e31ec7cdc2ce75705a484ef0be1a2fecac8a58272489349de8/setuptools-80.4.0-py3-none-any.whl", hash = "sha256:6cdc8cb9a7d590b237dbe4493614a9b75d0559b888047c1f67d49ba50fc3edb2", size = 1200812, upload-time = "2025-05-09T20:42:25.325Z" },
 ]
 
 [[package]]
@@ -1037,6 +1277,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/83/d3/803453b36afefb7c2bb238361cd4ae6125a569b4db67cd9e79846ba2d68c/sympy-1.14.0.tar.gz", hash = "sha256:d3d3fe8df1e5a0b42f0e7bdf50541697dbe7d23746e894990c030e2b05e72517", size = 7793921, upload-time = "2025-04-27T18:05:01.611Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a2/09/77d55d46fd61b4a135c444fc97158ef34a095e5681d0a6c10b75bf356191/sympy-1.14.0-py3-none-any.whl", hash = "sha256:e091cc3e99d2141a0ba2847328f5479b05d94a6635cb96148ccb3f34671bd8f5", size = 6299353, upload-time = "2025-04-27T18:04:59.103Z" },
+]
+
+[[package]]
+name = "tcmlib"
+version = "1.2.0"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4d/6e/e9544e6ddb3640e92d9937689e9e33018503ddbc069eeb2e6a7581870591/tcmlib-1.2.0-py2.py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:dee9a0665ffa0a74f0ec72844ef7d82e9178ebf6980a76ac65906303d5ed4d03", size = 4160997, upload-time = "2024-10-25T10:59:37.067Z" },
+    { url = "https://files.pythonhosted.org/packages/5b/c8/c2a7bb169e21521a5bc82d955b30a064e266ab72485ac2dc33cd6ad153ea/tcmlib-1.2.0-py2.py3-none-win_amd64.whl", hash = "sha256:f751e005fd815ed0efeb87d4523f6a0938c5671e59ac935614f42d8ebb6489c9", size = 338379, upload-time = "2024-10-25T10:59:32.959Z" },
 ]
 
 [[package]]
@@ -1076,38 +1325,66 @@ name = "tensorrt-cu12-libs"
 version = "10.10.0.31"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "nvidia-cuda-runtime-cu12", version = "12.6.77", source = { registry = "https://pypi.org/simple" }, marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')" },
-    { name = "nvidia-cuda-runtime-cu12", version = "12.9.37", source = { registry = "https://pypi.org/simple" }, marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or sys_platform == 'darwin' or sys_platform == 'win32'" },
+    { name = "nvidia-cuda-runtime-cu12", version = "12.6.77", source = { registry = "https://pypi.org/simple" }, marker = "(sys_platform != 'win32' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "nvidia-cuda-runtime-cu12", version = "12.9.37", source = { registry = "https://pypi.org/simple" }, marker = "(sys_platform == 'win32' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/f7/92/fba43ffe56ef9b38a26197770e4ba33cb6d8bb89c2a0c624c589d7c10b8e/tensorrt_cu12_libs-10.10.0.31.tar.gz", hash = "sha256:29ca18eaa2ebad7a380f4f24e75ef99055a5959b77302782d22202cfd93ec1be", size = 708, upload-time = "2025-05-01T18:42:27.25Z" }
 
 [[package]]
 name = "torch"
 version = "2.7.0"
-source = { registry = "https://pypi.org/simple" }
+source = { registry = "https://download.pytorch.org/whl/cpu" }
+resolution-markers = [
+    "sys_platform == 'darwin'",
+]
 dependencies = [
-    { name = "filelock" },
-    { name = "fsspec" },
-    { name = "jinja2" },
-    { name = "networkx" },
-    { name = "nvidia-cublas-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-cuda-cupti-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-cuda-nvrtc-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-cuda-runtime-cu12", version = "12.6.77", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-cudnn-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-cufft-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-cufile-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-curand-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-cusolver-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-cusparse-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-cusparselt-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-nccl-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-nvjitlink-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-nvtx-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "setuptools" },
-    { name = "sympy" },
-    { name = "triton", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "typing-extensions" },
+    { name = "filelock", marker = "(sys_platform == 'darwin' and extra == 'extra-8-edgetest-cpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "fsspec", marker = "(sys_platform == 'darwin' and extra == 'extra-8-edgetest-cpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "jinja2", marker = "(sys_platform == 'darwin' and extra == 'extra-8-edgetest-cpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "networkx", marker = "(sys_platform == 'darwin' and extra == 'extra-8-edgetest-cpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "setuptools", marker = "(sys_platform == 'darwin' and extra == 'extra-8-edgetest-cpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "sympy", marker = "(sys_platform == 'darwin' and extra == 'extra-8-edgetest-cpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "typing-extensions", marker = "(sys_platform == 'darwin' and extra == 'extra-8-edgetest-cpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+]
+wheels = [
+    { url = "https://download.pytorch.org/whl/cpu/torch-2.7.0-cp312-none-macosx_11_0_arm64.whl", hash = "sha256:30b7688a87239a7de83f269333651d8e582afffce6f591fff08c046f7787296e" },
+    { url = "https://download.pytorch.org/whl/cpu/torch-2.7.0-cp313-cp313t-macosx_14_0_arm64.whl", hash = "sha256:edad98dddd82220465b106506bb91ee5ce32bd075cddbcf2b443dfaa2cbd83bf" },
+    { url = "https://download.pytorch.org/whl/cpu/torch-2.7.0-cp313-none-macosx_11_0_arm64.whl", hash = "sha256:27f5007bdf45f7bb7af7f11d1828d5c2487e030690afb3d89a651fd7036a390e" },
+]
+
+[[package]]
+name = "torch"
+version = "2.7.0"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "sys_platform == 'win32'",
+    "sys_platform == 'darwin'",
+    "platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')",
+]
+dependencies = [
+    { name = "filelock", marker = "(extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra != 'extra-8-edgetest-gpu' and extra != 'extra-8-edgetest-xpu')" },
+    { name = "fsspec", marker = "(extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra != 'extra-8-edgetest-gpu' and extra != 'extra-8-edgetest-xpu')" },
+    { name = "jinja2", marker = "(extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra != 'extra-8-edgetest-gpu' and extra != 'extra-8-edgetest-xpu')" },
+    { name = "networkx", marker = "(extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra != 'extra-8-edgetest-gpu' and extra != 'extra-8-edgetest-xpu')" },
+    { name = "nvidia-cublas-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-8-edgetest-cpu' and extra != 'extra-8-edgetest-gpu' and extra != 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "nvidia-cuda-cupti-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-8-edgetest-cpu' and extra != 'extra-8-edgetest-gpu' and extra != 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "nvidia-cuda-nvrtc-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-8-edgetest-cpu' and extra != 'extra-8-edgetest-gpu' and extra != 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "nvidia-cuda-runtime-cu12", version = "12.6.77", source = { registry = "https://pypi.org/simple" }, marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-8-edgetest-cpu' and extra != 'extra-8-edgetest-gpu' and extra != 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "nvidia-cudnn-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-8-edgetest-cpu' and extra != 'extra-8-edgetest-gpu' and extra != 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "nvidia-cufft-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-8-edgetest-cpu' and extra != 'extra-8-edgetest-gpu' and extra != 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "nvidia-cufile-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-8-edgetest-cpu' and extra != 'extra-8-edgetest-gpu' and extra != 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "nvidia-curand-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-8-edgetest-cpu' and extra != 'extra-8-edgetest-gpu' and extra != 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "nvidia-cusolver-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-8-edgetest-cpu' and extra != 'extra-8-edgetest-gpu' and extra != 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "nvidia-cusparse-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-8-edgetest-cpu' and extra != 'extra-8-edgetest-gpu' and extra != 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "nvidia-cusparselt-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-8-edgetest-cpu' and extra != 'extra-8-edgetest-gpu' and extra != 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "nvidia-nccl-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-8-edgetest-cpu' and extra != 'extra-8-edgetest-gpu' and extra != 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "nvidia-nvjitlink-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-8-edgetest-cpu' and extra != 'extra-8-edgetest-gpu' and extra != 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "nvidia-nvtx-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-8-edgetest-cpu' and extra != 'extra-8-edgetest-gpu' and extra != 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "setuptools", marker = "(extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra != 'extra-8-edgetest-gpu' and extra != 'extra-8-edgetest-xpu')" },
+    { name = "sympy", marker = "(extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra != 'extra-8-edgetest-gpu' and extra != 'extra-8-edgetest-xpu')" },
+    { name = "triton", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-8-edgetest-cpu' and extra != 'extra-8-edgetest-gpu' and extra != 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "typing-extensions", marker = "(extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra != 'extra-8-edgetest-gpu' and extra != 'extra-8-edgetest-xpu')" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/aa/5e/ac759f4c0ab7c01feffa777bd68b43d2ac61560a9770eeac074b450f81d4/torch-2.7.0-cp312-cp312-manylinux_2_28_aarch64.whl", hash = "sha256:36a6368c7ace41ad1c0f69f18056020b6a5ca47bedaca9a2f3b578f5a104c26c", size = 99013250, upload-time = "2025-04-23T14:35:15.589Z" },
@@ -1125,13 +1402,156 @@ wheels = [
 ]
 
 [[package]]
+name = "torch"
+version = "2.7.0+cpu"
+source = { registry = "https://download.pytorch.org/whl/cpu" }
+resolution-markers = [
+    "sys_platform == 'win32'",
+    "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')",
+    "platform_machine == 'aarch64' and sys_platform == 'linux'",
+]
+dependencies = [
+    { name = "filelock", marker = "(sys_platform != 'darwin' and extra == 'extra-8-edgetest-cpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "fsspec", marker = "(sys_platform != 'darwin' and extra == 'extra-8-edgetest-cpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "jinja2", marker = "(sys_platform != 'darwin' and extra == 'extra-8-edgetest-cpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "networkx", marker = "(sys_platform != 'darwin' and extra == 'extra-8-edgetest-cpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "setuptools", marker = "(sys_platform != 'darwin' and extra == 'extra-8-edgetest-cpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "sympy", marker = "(sys_platform != 'darwin' and extra == 'extra-8-edgetest-cpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "typing-extensions", marker = "(sys_platform != 'darwin' and extra == 'extra-8-edgetest-cpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+]
+wheels = [
+    { url = "https://download.pytorch.org/whl/cpu/torch-2.7.0%2Bcpu-cp312-cp312-manylinux_2_28_aarch64.whl" },
+    { url = "https://download.pytorch.org/whl/cpu/torch-2.7.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl", hash = "sha256:64123c05615e27368c7a7816f6e39c6d219998693beabde0b0b9cedf91b5ed8b" },
+    { url = "https://download.pytorch.org/whl/cpu/torch-2.7.0%2Bcpu-cp312-cp312-win_amd64.whl", hash = "sha256:69e25c973bdd7ea24b0fa9f9792114950afaeb8f819e5723819b923f50989175" },
+    { url = "https://download.pytorch.org/whl/cpu/torch-2.7.0%2Bcpu-cp312-cp312-win_arm64.whl", hash = "sha256:1d7a6f33868276770a657beec7f77c7726b4da9d0739eff1b3ae64cc9a09d8e3" },
+    { url = "https://download.pytorch.org/whl/cpu/torch-2.7.0%2Bcpu-cp313-cp313-manylinux_2_28_aarch64.whl" },
+    { url = "https://download.pytorch.org/whl/cpu/torch-2.7.0%2Bcpu-cp313-cp313-manylinux_2_28_x86_64.whl", hash = "sha256:3b09aa2c8d30fa567a8d13270fbf9af7ee472fdfafbc7dfdc87c607bf46001f7" },
+    { url = "https://download.pytorch.org/whl/cpu/torch-2.7.0%2Bcpu-cp313-cp313-win_amd64.whl", hash = "sha256:99ca8f4cb53484c45bb668657069c17139c07367ea20ddef2c0ce8412f42da2f" },
+    { url = "https://download.pytorch.org/whl/cpu/torch-2.7.0%2Bcpu-cp313-cp313t-manylinux_2_28_aarch64.whl" },
+    { url = "https://download.pytorch.org/whl/cpu/torch-2.7.0%2Bcpu-cp313-cp313t-manylinux_2_28_x86_64.whl", hash = "sha256:7b31fa6b1d026542b4ed8ce7ec7ee5489413cd9bd6479c14c5ad559c15d92e3b" },
+    { url = "https://download.pytorch.org/whl/cpu/torch-2.7.0%2Bcpu-cp313-cp313t-win_amd64.whl", hash = "sha256:b42cfe122faed26c6ffee1c97d64e6a1f72a081b64d457a2c97244c1497f4adc" },
+]
+
+[[package]]
+name = "torch"
+version = "2.7.0+cu126"
+source = { registry = "https://download.pytorch.org/whl/cu126" }
+resolution-markers = [
+    "sys_platform == 'win32'",
+    "sys_platform == 'darwin'",
+    "platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')",
+]
+dependencies = [
+    { name = "filelock", marker = "extra == 'extra-8-edgetest-gpu' or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "fsspec", marker = "extra == 'extra-8-edgetest-gpu' or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "jinja2", marker = "extra == 'extra-8-edgetest-gpu' or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "networkx", marker = "extra == 'extra-8-edgetest-gpu' or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "nvidia-cublas-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-8-edgetest-gpu') or (platform_machine != 'x86_64' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform != 'linux' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "nvidia-cuda-cupti-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-8-edgetest-gpu') or (platform_machine != 'x86_64' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform != 'linux' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "nvidia-cuda-nvrtc-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-8-edgetest-gpu') or (platform_machine != 'x86_64' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform != 'linux' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "nvidia-cuda-runtime-cu12", version = "12.6.77", source = { registry = "https://pypi.org/simple" }, marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-8-edgetest-gpu') or (platform_machine != 'x86_64' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform != 'linux' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "nvidia-cudnn-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-8-edgetest-gpu') or (platform_machine != 'x86_64' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform != 'linux' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "nvidia-cufft-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-8-edgetest-gpu') or (platform_machine != 'x86_64' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform != 'linux' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "nvidia-cufile-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-8-edgetest-gpu') or (platform_machine != 'x86_64' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform != 'linux' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "nvidia-curand-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-8-edgetest-gpu') or (platform_machine != 'x86_64' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform != 'linux' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "nvidia-cusolver-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-8-edgetest-gpu') or (platform_machine != 'x86_64' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform != 'linux' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "nvidia-cusparse-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-8-edgetest-gpu') or (platform_machine != 'x86_64' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform != 'linux' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "nvidia-cusparselt-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-8-edgetest-gpu') or (platform_machine != 'x86_64' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform != 'linux' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "nvidia-nccl-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-8-edgetest-gpu') or (platform_machine != 'x86_64' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform != 'linux' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "nvidia-nvjitlink-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-8-edgetest-gpu') or (platform_machine != 'x86_64' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform != 'linux' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "nvidia-nvtx-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-8-edgetest-gpu') or (platform_machine != 'x86_64' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform != 'linux' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "setuptools", marker = "extra == 'extra-8-edgetest-gpu' or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "sympy", marker = "extra == 'extra-8-edgetest-gpu' or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "triton", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-8-edgetest-gpu') or (platform_machine != 'x86_64' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform != 'linux' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "typing-extensions", marker = "extra == 'extra-8-edgetest-gpu' or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+]
+wheels = [
+    { url = "https://download.pytorch.org/whl/cu126/torch-2.7.0%2Bcu126-cp312-cp312-manylinux_2_28_x86_64.whl", hash = "sha256:4933a51bfb906f34b44c23c6ea28fdfef5bf14a3c79a43d5d798285e29eba295" },
+    { url = "https://download.pytorch.org/whl/cu126/torch-2.7.0%2Bcu126-cp312-cp312-win_amd64.whl", hash = "sha256:30bd9e92038c391b3b08b541c9bc803cb54e45fda63b61f7469bba6de372b065" },
+    { url = "https://download.pytorch.org/whl/cu126/torch-2.7.0%2Bcu126-cp313-cp313-manylinux_2_28_x86_64.whl", hash = "sha256:3c9e354de8db56ffc2e27f87b8a9a88c72794559579d464bf7f52800d1c35d00" },
+    { url = "https://download.pytorch.org/whl/cu126/torch-2.7.0%2Bcu126-cp313-cp313-win_amd64.whl", hash = "sha256:1f98f55295bba3834bfaabb0e4f06fc076ec7d76a825ce0f96ec57ba86bba584" },
+    { url = "https://download.pytorch.org/whl/cu126/torch-2.7.0%2Bcu126-cp313-cp313t-manylinux_2_28_x86_64.whl", hash = "sha256:6a0c8235501280d8215225700cb7b7e05c90b8f01efddc0fbdb72edb34230146" },
+    { url = "https://download.pytorch.org/whl/cu126/torch-2.7.0%2Bcu126-cp313-cp313t-win_amd64.whl", hash = "sha256:c364aac3c4e18289d6779b00d5972d05d6908a79a0c8c1ea51305823da09928d" },
+]
+
+[[package]]
+name = "torch"
+version = "2.7.0+xpu"
+source = { registry = "https://download.pytorch.org/whl/xpu" }
+resolution-markers = [
+    "sys_platform == 'win32'",
+    "sys_platform == 'darwin'",
+    "platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')",
+]
+dependencies = [
+    { name = "filelock", marker = "(extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra != 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "fsspec", marker = "(extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra != 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "intel-cmplr-lib-rt", version = "2025.0.4", source = { registry = "https://pypi.org/simple" }, marker = "(sys_platform == 'linux' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "intel-cmplr-lib-rt", version = "2025.0.5", source = { registry = "https://pypi.org/simple" }, marker = "(sys_platform == 'win32' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "intel-cmplr-lib-ur", version = "2025.0.4", source = { registry = "https://pypi.org/simple" }, marker = "(sys_platform == 'linux' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "intel-cmplr-lib-ur", version = "2025.0.5", source = { registry = "https://pypi.org/simple" }, marker = "(sys_platform == 'win32' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "intel-cmplr-lic-rt", version = "2025.0.4", source = { registry = "https://pypi.org/simple" }, marker = "(sys_platform == 'linux' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "intel-cmplr-lic-rt", version = "2025.0.5", source = { registry = "https://pypi.org/simple" }, marker = "(sys_platform == 'win32' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "intel-pti", marker = "(extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra != 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "intel-sycl-rt", version = "2025.0.4", source = { registry = "https://pypi.org/simple" }, marker = "(sys_platform == 'linux' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "intel-sycl-rt", version = "2025.0.5", source = { registry = "https://pypi.org/simple" }, marker = "(sys_platform == 'win32' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "jinja2", marker = "(extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra != 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "networkx", marker = "(extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra != 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "pytorch-triton-xpu", marker = "(extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra != 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "setuptools", marker = "(extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra != 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "sympy", marker = "(extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra != 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "tcmlib", marker = "(extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra != 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "typing-extensions", marker = "(extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra != 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "umf", marker = "(extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra != 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+]
+wheels = [
+    { url = "https://download.pytorch.org/whl/xpu/torch-2.7.0%2Bxpu-cp312-cp312-linux_x86_64.whl", hash = "sha256:c806d44aa2ca5d225629f6fbc6c994d5deaac2d2cde449195bc8e3522ddd219a" },
+    { url = "https://download.pytorch.org/whl/xpu/torch-2.7.0%2Bxpu-cp312-cp312-win_amd64.whl", hash = "sha256:94739e665d9b4d5cd7af5f517cb6103f6f9fb421c095184609653a24524040f5" },
+    { url = "https://download.pytorch.org/whl/xpu/torch-2.7.0%2Bxpu-cp313-cp313-linux_x86_64.whl", hash = "sha256:25d8277b7f01d42e2e014ccbab57a2692b6ec4eff8dcf894eda1b297407cf97a" },
+    { url = "https://download.pytorch.org/whl/xpu/torch-2.7.0%2Bxpu-cp313-cp313-win_amd64.whl", hash = "sha256:31df3cb674918e89bc8c532baa331dc84f4430e1f9c0ec379232db44cba78355" },
+    { url = "https://download.pytorch.org/whl/xpu/torch-2.7.0%2Bxpu-cp313-cp313t-linux_x86_64.whl", hash = "sha256:f853aa4e926102a11a8522f415e53da39b7e431b7922835f62e8a71e33f7e7dd" },
+    { url = "https://download.pytorch.org/whl/xpu/torch-2.7.0%2Bxpu-cp313-cp313t-win_amd64.whl", hash = "sha256:cc286e5042fb0f628b2fdf79f570861e9340e6cc19f3e6a2ca27ce44e6fffbaf" },
+]
+
+[[package]]
+name = "torchvision"
+version = "0.22.0"
+source = { registry = "https://download.pytorch.org/whl/cpu" }
+resolution-markers = [
+    "platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "sys_platform == 'darwin'",
+]
+dependencies = [
+    { name = "numpy", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-8-edgetest-cpu') or (platform_machine != 'aarch64' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (platform_machine != 'aarch64' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (platform_machine != 'aarch64' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform == 'darwin' and extra == 'extra-8-edgetest-cpu') or (sys_platform != 'linux' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (sys_platform != 'linux' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform != 'linux' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform == 'darwin' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "pillow", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-8-edgetest-cpu') or (platform_machine != 'aarch64' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (platform_machine != 'aarch64' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (platform_machine != 'aarch64' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform == 'darwin' and extra == 'extra-8-edgetest-cpu') or (sys_platform != 'linux' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (sys_platform != 'linux' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform != 'linux' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform == 'darwin' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "torch", version = "2.7.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(sys_platform == 'darwin' and extra == 'extra-8-edgetest-cpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "torch", version = "2.7.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-8-edgetest-cpu') or (platform_machine != 'aarch64' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (platform_machine != 'aarch64' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (platform_machine != 'aarch64' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform != 'linux' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (sys_platform != 'linux' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform != 'linux' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+]
+wheels = [
+    { url = "https://download.pytorch.org/whl/cpu/torchvision-0.22.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:31c3165418fe21c3d81fe3459e51077c2f948801b8933ed18169f54652796a0f" },
+    { url = "https://download.pytorch.org/whl/cpu/torchvision-0.22.0-cp312-cp312-manylinux_2_28_aarch64.whl", hash = "sha256:8f116bc82e0c076e70ba7776e611ed392b9666aa443662e687808b08993d26af" },
+    { url = "https://download.pytorch.org/whl/cpu/torchvision-0.22.0-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:ece17995857dd328485c9c027c0b20ffc52db232e30c84ff6c95ab77201112c5" },
+    { url = "https://download.pytorch.org/whl/cpu/torchvision-0.22.0-cp313-cp313-manylinux_2_28_aarch64.whl", hash = "sha256:471c6dd75bb984c6ebe4f60322894a290bf3d4b195e769d80754f3689cd7f238" },
+    { url = "https://download.pytorch.org/whl/cpu/torchvision-0.22.0-cp313-cp313t-macosx_11_0_arm64.whl", hash = "sha256:cdc96daa4658b47ce9384154c86ed1e70cba9d972a19f5de6e33f8f94a626790" },
+    { url = "https://download.pytorch.org/whl/cpu/torchvision-0.22.0-cp313-cp313t-manylinux_2_28_aarch64.whl", hash = "sha256:753d3c84eeadd5979a33b3b73a25ecd0aa4af44d6b45ed2c70d44f5e0ac68312" },
+]
+
+[[package]]
 name = "torchvision"
 version = "0.22.0"
 source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "sys_platform == 'win32'",
+    "sys_platform == 'darwin'",
+    "platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')",
+]
 dependencies = [
-    { name = "numpy" },
-    { name = "pillow" },
-    { name = "torch" },
+    { name = "numpy", marker = "(extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra != 'extra-8-edgetest-gpu' and extra != 'extra-8-edgetest-xpu')" },
+    { name = "pillow", marker = "(extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra != 'extra-8-edgetest-gpu' and extra != 'extra-8-edgetest-xpu')" },
+    { name = "torch", version = "2.7.0", source = { registry = "https://pypi.org/simple" }, marker = "(extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra != 'extra-8-edgetest-gpu' and extra != 'extra-8-edgetest-xpu')" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/cb/ea/887d1d61cf4431a46280972de665f350af1898ce5006cd046326e5d0a2f2/torchvision-0.22.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:31c3165418fe21c3d81fe3459e51077c2f948801b8933ed18169f54652796a0f", size = 1947826, upload-time = "2025-04-23T14:41:59.188Z" },
@@ -1149,11 +1569,84 @@ wheels = [
 ]
 
 [[package]]
+name = "torchvision"
+version = "0.22.0+cpu"
+source = { registry = "https://download.pytorch.org/whl/cpu" }
+resolution-markers = [
+    "sys_platform == 'win32'",
+    "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')",
+]
+dependencies = [
+    { name = "numpy", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-8-edgetest-cpu') or (sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-8-edgetest-cpu') or (sys_platform == 'darwin' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (sys_platform == 'darwin' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform == 'darwin' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform == 'linux' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (sys_platform == 'linux' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "pillow", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-8-edgetest-cpu') or (sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-8-edgetest-cpu') or (sys_platform == 'darwin' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (sys_platform == 'darwin' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform == 'darwin' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform == 'linux' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (sys_platform == 'linux' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "torch", version = "2.7.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-8-edgetest-cpu') or (sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-8-edgetest-cpu') or (sys_platform == 'darwin' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (sys_platform == 'darwin' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform == 'darwin' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform == 'linux' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (sys_platform == 'linux' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+]
+wheels = [
+    { url = "https://download.pytorch.org/whl/cpu/torchvision-0.22.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl", hash = "sha256:effb34eabe87ae0d811fe2d6e3433ed1eee2d1850ff0670964d1475a06512c73" },
+    { url = "https://download.pytorch.org/whl/cpu/torchvision-0.22.0%2Bcpu-cp312-cp312-win_amd64.whl", hash = "sha256:e74be2e4efe2253cd145a80a7c21defe2e48125a114445f06bf02640f6579109" },
+    { url = "https://download.pytorch.org/whl/cpu/torchvision-0.22.0%2Bcpu-cp313-cp313-manylinux_2_28_x86_64.whl", hash = "sha256:5878553b984d5903f4428a0de4d9e07a8d8d6c46a1a1072da6b2064c6e673a74" },
+    { url = "https://download.pytorch.org/whl/cpu/torchvision-0.22.0%2Bcpu-cp313-cp313-win_amd64.whl", hash = "sha256:0172e52a8df7779632e5f7e7842e4de1e787e2a8f790b0bf4547ef1d025f16fd" },
+    { url = "https://download.pytorch.org/whl/cpu/torchvision-0.22.0%2Bcpu-cp313-cp313t-manylinux_2_28_x86_64.whl", hash = "sha256:e65592541fd4ceb3609acf6da16b56c3cd9d93ef3a56cf8240236416c08f31dd" },
+    { url = "https://download.pytorch.org/whl/cpu/torchvision-0.22.0%2Bcpu-cp313-cp313t-win_amd64.whl", hash = "sha256:73b8bc94023e24d8fce8ece2175d4e588e704b83cc43dd2a185a0a1dc92b8d9a" },
+]
+
+[[package]]
+name = "torchvision"
+version = "0.22.0+cu126"
+source = { registry = "https://download.pytorch.org/whl/cu126" }
+resolution-markers = [
+    "sys_platform == 'win32'",
+    "sys_platform == 'darwin'",
+    "platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')",
+]
+dependencies = [
+    { name = "numpy", marker = "extra == 'extra-8-edgetest-gpu' or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "pillow", marker = "extra == 'extra-8-edgetest-gpu' or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "torch", version = "2.7.0+cu126", source = { registry = "https://download.pytorch.org/whl/cu126" }, marker = "extra == 'extra-8-edgetest-gpu' or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+]
+wheels = [
+    { url = "https://download.pytorch.org/whl/cu126/torchvision-0.22.0%2Bcu126-cp312-cp312-manylinux_2_28_x86_64.whl", hash = "sha256:d155ffb659357747ef6697aca41dffd6fc8831d73f7b1b91d142ce2cd6e490c9" },
+    { url = "https://download.pytorch.org/whl/cu126/torchvision-0.22.0%2Bcu126-cp312-cp312-win_amd64.whl", hash = "sha256:62ecdbdd53a467f17923a8237d0396a930a4c65c2377f9afc56872d74d99522f" },
+    { url = "https://download.pytorch.org/whl/cu126/torchvision-0.22.0%2Bcu126-cp313-cp313-manylinux_2_28_x86_64.whl", hash = "sha256:c05a19944f9cf4aedbea5323d08738982e975986079377c8f07bc4765b558889" },
+    { url = "https://download.pytorch.org/whl/cu126/torchvision-0.22.0%2Bcu126-cp313-cp313-win_amd64.whl", hash = "sha256:4976d5b9893e9973934a765da27b0f1f6a00ac533c28fea8db1636de90036998" },
+    { url = "https://download.pytorch.org/whl/cu126/torchvision-0.22.0%2Bcu126-cp313-cp313t-manylinux_2_28_x86_64.whl", hash = "sha256:c2554420daf759d4bb0a8c0ced1de6fc69ce37a02c0da9d67f0c74bd0bf30310" },
+    { url = "https://download.pytorch.org/whl/cu126/torchvision-0.22.0%2Bcu126-cp313-cp313t-win_amd64.whl", hash = "sha256:95af25cd5390fe7480371e63686a05cdb6f5ff4d005218b09b2faaa833f60030" },
+]
+
+[[package]]
+name = "torchvision"
+version = "0.22.0+xpu"
+source = { registry = "https://download.pytorch.org/whl/xpu" }
+resolution-markers = [
+    "sys_platform == 'win32'",
+    "sys_platform == 'darwin'",
+    "platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')",
+]
+dependencies = [
+    { name = "numpy", marker = "(extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra != 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "pillow", marker = "(extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra != 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "torch", version = "2.7.0+xpu", source = { registry = "https://download.pytorch.org/whl/xpu" }, marker = "(extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra != 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+]
+wheels = [
+    { url = "https://download.pytorch.org/whl/xpu/torchvision-0.22.0%2Bxpu-cp312-cp312-linux_x86_64.whl", hash = "sha256:b7686d566dd17f5304f52e4a8371c2d8cb7b80edc75e64ea55da82eb33cdef26" },
+    { url = "https://download.pytorch.org/whl/xpu/torchvision-0.22.0%2Bxpu-cp312-cp312-manylinux_2_28_x86_64.whl", hash = "sha256:c070dc5f1bb664c2d4a25175d21968ad01cabed26d82d1880a4642795ee958f0" },
+    { url = "https://download.pytorch.org/whl/xpu/torchvision-0.22.0%2Bxpu-cp312-cp312-win_amd64.whl", hash = "sha256:544264f62530b8d7564399ec2b72841045bfd872638646e764303b4e62a93516" },
+    { url = "https://download.pytorch.org/whl/xpu/torchvision-0.22.0%2Bxpu-cp313-cp313-linux_x86_64.whl", hash = "sha256:2b14385884e80c9d92bcdb3d91429157044548b38f1b4784f60065c3d93d0582" },
+    { url = "https://download.pytorch.org/whl/xpu/torchvision-0.22.0%2Bxpu-cp313-cp313-manylinux_2_28_x86_64.whl", hash = "sha256:73121c18fbd45a1dee9e05a2cec98c067602862433846472ff69b379bccd0ed5" },
+    { url = "https://download.pytorch.org/whl/xpu/torchvision-0.22.0%2Bxpu-cp313-cp313-win_amd64.whl", hash = "sha256:ea3a5854452ab41961cf2e223ccc955b8f7018b6e92ef85ced9f923963c315b8" },
+    { url = "https://download.pytorch.org/whl/xpu/torchvision-0.22.0%2Bxpu-cp313-cp313t-linux_x86_64.whl", hash = "sha256:5df2f7bfc497cc0138e8b6996bff99e8fcd60f9571e7022be30f16ca54bae33b" },
+    { url = "https://download.pytorch.org/whl/xpu/torchvision-0.22.0%2Bxpu-cp313-cp313t-manylinux_2_28_x86_64.whl", hash = "sha256:6d5aa0a6d19a860ab31d72874640ab5696d4792e82aa60b0bb19a43addf4fcdc" },
+    { url = "https://download.pytorch.org/whl/xpu/torchvision-0.22.0%2Bxpu-cp313-cp313t-win_amd64.whl", hash = "sha256:31c075b44af2a1cb100b09c683a82521d9a057dc8874023800d8fcedc603dee1" },
+]
+
+[[package]]
 name = "tqdm"
 version = "4.67.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a8/4b/29b4ef32e036bb34e4ab51796dd745cdba7ed47ad142a9f4a1eb8e0c744d/tqdm-4.67.1.tar.gz", hash = "sha256:f8aef9c52c08c13a65f30ea34f4e5aac3fd1a34959879d7e59e63027286627f2", size = 169737, upload-time = "2024-11-24T20:12:22.481Z" }
 wheels = [
@@ -1165,7 +1658,7 @@ name = "triton"
 version = "3.3.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "setuptools", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')" },
+    { name = "setuptools", marker = "sys_platform != 'win32'" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/11/53/ce18470914ab6cfbec9384ee565d23c4d1c55f0548160b1c7b33000b11fd/triton-3.3.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:b68c778f6c4218403a6bd01be7484f6dc9e20fe2083d22dd8aef33e3b87a10a3", size = 156504509, upload-time = "2025-04-09T20:27:40.413Z" },
@@ -1193,7 +1686,7 @@ wheels = [
 
 [[package]]
 name = "ultralytics"
-version = "8.3.129"
+version = "8.3.130"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "matplotlib" },
@@ -1207,14 +1700,22 @@ dependencies = [
     { name = "requests" },
     { name = "scipy" },
     { name = "seaborn" },
-    { name = "torch" },
-    { name = "torchvision" },
+    { name = "torch", version = "2.7.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(sys_platform == 'darwin' and extra == 'extra-8-edgetest-cpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "torch", version = "2.7.0", source = { registry = "https://pypi.org/simple" }, marker = "(extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra != 'extra-8-edgetest-gpu' and extra != 'extra-8-edgetest-xpu')" },
+    { name = "torch", version = "2.7.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(sys_platform != 'darwin' and extra == 'extra-8-edgetest-cpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "torch", version = "2.7.0+cu126", source = { registry = "https://download.pytorch.org/whl/cu126" }, marker = "extra == 'extra-8-edgetest-gpu' or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "torch", version = "2.7.0+xpu", source = { registry = "https://download.pytorch.org/whl/xpu" }, marker = "(extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra != 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "torchvision", version = "0.22.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-8-edgetest-cpu') or (platform_machine != 'aarch64' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (platform_machine != 'aarch64' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (platform_machine != 'aarch64' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform == 'darwin' and extra == 'extra-8-edgetest-cpu') or (sys_platform != 'linux' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (sys_platform != 'linux' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform != 'linux' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform == 'darwin' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "torchvision", version = "0.22.0", source = { registry = "https://pypi.org/simple" }, marker = "(extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra != 'extra-8-edgetest-gpu' and extra != 'extra-8-edgetest-xpu')" },
+    { name = "torchvision", version = "0.22.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-8-edgetest-cpu') or (sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-8-edgetest-cpu') or (sys_platform == 'darwin' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (sys_platform == 'darwin' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform == 'darwin' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (sys_platform == 'linux' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (sys_platform == 'linux' and extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "torchvision", version = "0.22.0+cu126", source = { registry = "https://download.pytorch.org/whl/cu126" }, marker = "extra == 'extra-8-edgetest-gpu' or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "torchvision", version = "0.22.0+xpu", source = { registry = "https://download.pytorch.org/whl/xpu" }, marker = "(extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra != 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
     { name = "tqdm" },
     { name = "ultralytics-thop" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/de/e6/59dd4ca4c96d54ac509c61deb8311bb6bd3f6101cbe9fe1a99bbd9da06c6/ultralytics-8.3.129.tar.gz", hash = "sha256:c9c9fb5b8851e97a1d1bde261cc7d32c16bbe91492745aa2fe79229ddaddb38e", size = 872105, upload-time = "2025-05-08T10:37:10.392Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a0/e6/6cc0cc0ab857e75088da87a3e4ff19253b5cfed66473bd76f65ae2d9a651/ultralytics-8.3.130.tar.gz", hash = "sha256:123fa7a9c02d0c1fe89e1561966254cd330c77d8e847125f36291626316595d5", size = 872245, upload-time = "2025-05-09T11:58:27.737Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/14/ec/bfb1e57fa99ab897c16bf60ed9aa9ac0baaebb20b63ffbd3137a82835ef7/ultralytics-8.3.129-py3-none-any.whl", hash = "sha256:bac25e35f4e702795fc61291ab9753f07a869ac99d0940d28190a26348101c01", size = 1015168, upload-time = "2025-05-08T10:37:07.555Z" },
+    { url = "https://files.pythonhosted.org/packages/c7/03/fb590cfffe5cf5f63248a45fa3a78bbc6e0a07d00cf8277ec6c740bc1f58/ultralytics-8.3.130-py3-none-any.whl", hash = "sha256:31cfb9d494e0a333dd181c2a2a3b361ca29e5c888b296fe7f85374da28404f7d", size = 1015458, upload-time = "2025-05-09T11:58:25.114Z" },
 ]
 
 [[package]]
@@ -1223,11 +1724,27 @@ version = "2.0.14"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "numpy" },
-    { name = "torch" },
+    { name = "torch", version = "2.7.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(sys_platform == 'darwin' and extra == 'extra-8-edgetest-cpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "torch", version = "2.7.0", source = { registry = "https://pypi.org/simple" }, marker = "(extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra != 'extra-8-edgetest-gpu' and extra != 'extra-8-edgetest-xpu')" },
+    { name = "torch", version = "2.7.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(sys_platform != 'darwin' and extra == 'extra-8-edgetest-cpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu') or (extra == 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "torch", version = "2.7.0+cu126", source = { registry = "https://download.pytorch.org/whl/cu126" }, marker = "extra == 'extra-8-edgetest-gpu' or (extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+    { name = "torch", version = "2.7.0+xpu", source = { registry = "https://download.pytorch.org/whl/xpu" }, marker = "(extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra != 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/c2/d8/e43a8bfcb03ff036119d098a7ea27be9f0adb715543ed6bd83b16cda83dc/ultralytics_thop-2.0.14.tar.gz", hash = "sha256:38ebfdbd3cd8dafdc3d26ec3a7d4f604fbeed5e69a74e61a48060b39736c945c", size = 28793, upload-time = "2025-01-16T21:38:06.29Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a6/10/251f036b4c5d77249f9a119cc89dafe8745dc1ad1f1a5f06b6a3988ca454/ultralytics_thop-2.0.14-py3-none-any.whl", hash = "sha256:720b421e2459179fee21ec8f730d242a20774cd4b0a00a58d02351a39ec3881c", size = 26517, upload-time = "2025-01-16T21:38:04.722Z" },
+]
+
+[[package]]
+name = "umf"
+version = "0.9.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "tcmlib", marker = "(extra == 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-gpu') or (extra != 'extra-8-edgetest-gpu' and extra == 'extra-8-edgetest-xpu') or (extra != 'extra-8-edgetest-cpu' and extra == 'extra-8-edgetest-xpu')" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4e/19/cef361ce4c5c1079f90d35ed853996f94cef5e68bc29b8e7d11a28b0c53b/umf-0.9.1-py2.py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:2f7b8eb45e182b24823be420063799ea89b4f1cad6b9510b1fc6e04b809c7ec2", size = 161551, upload-time = "2024-11-19T15:35:00.583Z" },
+    { url = "https://files.pythonhosted.org/packages/56/2a/3ccea66d7390f3b6407b396ec289d5acad7f8f92a1bd8b66b58d376fc019/umf-0.9.1-py2.py3-none-win_amd64.whl", hash = "sha256:9d1336d63c7a6b36af1f76dab942a760168da519a1bfe6941fc6418198b10820", size = 72212, upload-time = "2024-11-19T15:36:28.366Z" },
 ]
 
 [[package]]
