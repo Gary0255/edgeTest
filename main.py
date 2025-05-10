@@ -8,6 +8,7 @@ main.py
 
 import subprocess
 import sys
+import os
 import argparse
 from pathlib import Path
 from ultralytics import YOLO
@@ -88,8 +89,15 @@ def main():
         model_file = pt_path
 
     # Build subprocess call to parallel_stress.py
+    venv_root = os.environ.get("VIRTUAL_ENV")
+    if venv_root:
+        # Windows path:
+        python = os.path.join(venv_root, "Scripts", "python.exe")
+    else:
+        python = sys.executable
+        
     cmd = [
-        sys.executable, "parallel_stress.py",
+        python, "parallel_stress.py",
         "--source",       args.source,
         "--test-script",  "stress_test_yolo_track.py",
         "--model",        str(model_file),

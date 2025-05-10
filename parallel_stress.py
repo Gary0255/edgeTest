@@ -12,6 +12,8 @@ import time
 import psutil
 import argparse
 import csv
+import os
+import sys
 from pathlib import Path
 
 def parse_args():
@@ -42,8 +44,17 @@ def launch_instances(n, args):
     procs = []
     for i in range(n):
         logfile = f"batch_{n}_{i}.csv"
+        
+        # Use virtual environment python if available
+        venv_root = os.environ.get("VIRTUAL_ENV")
+        if venv_root:
+            # Windows path:
+            python = os.path.join(venv_root, "Scripts", "python.exe")
+        else:
+            python = sys.executable
+            
         cmd = [
-            "python3", args.test_script,
+            python, args.test_script,
             "--source", args.source,
             "--model", args.model,
             "--duration", str(args.duration),
