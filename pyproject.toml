@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-cpu = ["torch>=2.7.0", "torchvision>=0.22.0", "onnxruntime>=1.20.0"]
+cpu = ["torch>=2.7.0", "torchvision>=0.22.0",  "onnxruntime>=1.20.0", "onnxruntime>=1.20.0,!=1.22.0; sys_platform=='win32'"]
 gpu = ["torch>=2.7.0", "torchvision>=0.22.0", "tensorrt>=10.10.0.31", "onnxruntime-gpu>=1.20.0"]
 xpu = ["torch>=2.7.0", "torchvision>=0.22.0", "openvino>=2025.1.0", "onnxruntime-openvino>=1.20.0", "pytorch-triton-xpu>=3.3.0"]
 
