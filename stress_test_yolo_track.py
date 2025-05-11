@@ -6,7 +6,6 @@ and logs system stats to a CSV for later analysis.
 """
 
 import time
-import threading
 import subprocess
 import csv
 import argparse
@@ -56,40 +55,6 @@ def init_csv(log_file):
             "gpu_temp"
         ])
 
-def log_system_stats(log_file, log_interval, stop_event, current_fps):
-    """
-    Background thread: logs CPU%, RAM%, GPU% and GPU temp every log_interval seconds.
-    """
-    while not stop_event.is_set():
-        cpu = psutil.cpu_percent(interval=None)
-        mem = psutil.virtual_memory().percent
-
-        # Query NVIDIA GPU stats, if available
-        try:
-            gpu_query = subprocess.run(
-                ["nvidia-smi",
-                 "--query-gpu=utilization.gpu,temperature.gpu",
-                 "--format=csv,noheader,nounits"],
-                capture_output=True,
-                text=True,
-                check=True
-            )
-            gpu_pct, gpu_temp = gpu_query.stdout.strip().split(", ")
-        except Exception:
-            gpu_pct, gpu_temp = "N/A", "N/A"
-
-        with open(log_file, "a", newline="") as f:
-            writer = csv.writer(f)
-            writer.writerow([
-                round(time.time(), 3),
-                round(current_fps[0], 2),
-                cpu,
-                mem,
-                gpu_pct,
-                gpu_temp
-            ])
-
-        time.sleep(log_interval)
 
 def main():
     args = parse_args()
@@ -104,17 +69,6 @@ def main():
 
     init_csv(args.log_file)
 
-    # Shared state for logging thread
-    stop_event  = threading.Event()
-    current_fps = [0.0]
-
-    # Start logging thread
-    logger = threading.Thread(
-        target=log_system_stats,
-        args=(args.log_file, args.log_interval, stop_event, current_fps),
-        daemon=True
-    )
-    logger.start()
 
     # Load YOLO model once
     model = YOLO(args.model, task="detect")
@@ -136,19 +90,47 @@ def main():
     ):
         frame_count += 1
 
-        # Update FPS estimate every 100 frames
+        # Update FPS estimate and log system stats every 100 frames
         if frame_count % 100 == 0:
-            elapsed        = time.time() - start_time
-            current_fps[0] = frame_count / elapsed
-            print(f"[{elapsed:.1f}s] avg FPS: {current_fps[0]:.1f}")
+            elapsed = time.time() - start_time
+            current_fps = frame_count / elapsed
+            print(f"[{elapsed:.1f}s] avg FPS: {current_fps:.1f}")
+            
+            # Collect system stats
+            cpu = psutil.cpu_percent(interval=None)
+            mem = psutil.virtual_memory().percent
+            
+            # Query NVIDIA GPU stats, if available
+            try:
+                gpu_query = subprocess.run(
+                    ["nvidia-smi",
+                     "--query-gpu=utilization.gpu,temperature.gpu",
+                     "--format=csv,noheader,nounits"],
+                    capture_output=True,
+                    text=True,
+                    check=True
+                )
+                gpu_pct, gpu_temp = gpu_query.stdout.strip().split(", ")
+            except Exception:
+                gpu_pct, gpu_temp = "N/A", "N/A"
+                
+            # Log all stats together
+            with open(args.log_file, "a", newline="") as f:
+                writer = csv.writer(f)
+                writer.writerow([
+                    round(time.time(), 3),
+                    round(current_fps, 2),
+                    cpu,
+                    mem,
+                    gpu_pct,
+                    gpu_temp
+                ])
 
         # Stop after desired duration
         if time.time() - start_time >= args.duration:
             break
 
     # Clean up
-    stop_event.set()
-    logger.join()
     print("Stress test complete. Stats saved to:", args.log_file)
 
 if __name__ == "__main__":

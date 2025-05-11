@@ -91,8 +91,12 @@ def main():
     # Build subprocess call to parallel_stress.py
     venv_root = os.environ.get("VIRTUAL_ENV")
     if venv_root:
-        # Windows path:
-        python = os.path.join(venv_root, "Scripts", "python.exe")
+        if sys.platform == "win32":
+            # Windows path
+            python = os.path.join(venv_root, "Scripts", "python.exe")
+        else:
+            # Unix-like path (Linux/macOS)
+            python = os.path.join(venv_root, "bin", "python")
     else:
         python = sys.executable
         
