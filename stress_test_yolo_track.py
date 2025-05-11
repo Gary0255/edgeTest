@@ -94,7 +94,6 @@ def main():
         if frame_count % 100 == 0:
             elapsed = time.time() - start_time
             current_fps = frame_count / elapsed
-            print(f"[{elapsed:.1f}s] avg FPS: {current_fps:.1f}")
             
             # Collect system stats
             cpu = psutil.cpu_percent(interval=None)
@@ -113,6 +112,10 @@ def main():
                 gpu_pct, gpu_temp = gpu_query.stdout.strip().split(", ")
             except Exception:
                 gpu_pct, gpu_temp = "N/A", "N/A"
+                
+            # Print all metrics to console
+            print(f"[{elapsed:.1f}s] Stats: FPS={current_fps:.1f}, CPU={cpu}%, MEM={mem}%, " + 
+                  f"GPU={gpu_pct}%, GPU_temp={gpu_temp}°C")
                 
             # Log all stats together
             with open(args.log_file, "a", newline="") as f:

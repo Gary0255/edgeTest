@@ -110,6 +110,10 @@ def main():
         for p, _ in procs:
             if p.poll() is None:
                 alive += 1
+            else:
+                # exited on its own → inspect p.returncode
+                if p.returncode != 0:
+                    alive += 1
             p.terminate()
         print(f"   Processes alive at end: {alive}/{n}")
 
