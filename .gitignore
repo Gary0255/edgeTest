@@ -15,3 +15,5 @@ wheels/
 *.onnx
 *.engine
 *.csv
+output/
+*.log

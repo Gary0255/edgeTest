@@ -14,12 +14,19 @@ import argparse
 import csv
 import os
 import sys
+import logging
+import uuid
 from pathlib import Path
+
+from logger_setup import setup_logger
 
 def parse_args():
     p = argparse.ArgumentParser(
         description="Find max parallel YOLO instances before CPU, RAM or FPS limits hit"
     )
+    p.add_argument("--log-level", type=str, default="INFO",
+                   choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+                   help="Logging level (default: INFO)")
     p.add_argument("--test-script", "-t", default="stress_test_yolo_track.py",
                    help="Path to your YOLO stress-test script")
     p.add_argument("--source", "-s", default="test_video.mp4",
@@ -40,10 +47,16 @@ def parse_args():
                    help="Avg FPS threshold (default: 3.0)")
     return p.parse_args()
 
-def launch_instances(n, args):
+def launch_instances(n, args, logger):
+    # Create output directory if it doesn't exist
+    output_dir = Path("output")
+    output_dir.mkdir(exist_ok=True)
+    
+    logger.info(f"Launching {n} parallel instances")
+    
     procs = []
     for i in range(n):
-        logfile = f"batch_{n}_{i}.csv"
+        logfile = output_dir / f"batch_{n}_{i}.csv"
         
         # Use virtual environment python if available
         venv_root = os.environ.get("VIRTUAL_ENV")
@@ -57,16 +70,21 @@ def launch_instances(n, args):
         else:
             python = sys.executable
             
+        # Build command with log level passed to child processes
         cmd = [
             python, args.test_script,
             "--source", args.source,
             "--model", args.model,
             "--duration", str(args.duration),
-            "--log-file", logfile,
-            "--log-interval", str(args.interval)
+            "--log-file", str(logfile),  # Convert Path to string
+            "--log-interval", str(args.interval),
+            "--log-level", args.log_level
         ]
+        
+        logger.debug(f"Starting instance {i+1}/{n} with command: {' '.join(cmd)}")
         p = subprocess.Popen(cmd)
         procs.append((p, Path(logfile)))
+        
     return procs
 
 def monitor_system(duration, interval):
@@ -93,19 +111,35 @@ def parse_fps_from_csv(logfile: Path):
 
 def main():
     args = parse_args()
+    
+    # Generate a unique run ID
+    run_id = str(uuid.uuid4())[:8]
+    
+    # Set up logger with the specified level
+    log_level = getattr(logging, args.log_level)
+    log_file = Path("output") / f"parallel_stress_{run_id}.log"
+    logger = setup_logger(__name__, log_file, level=log_level)
+    
+    logger.info(f"Starting parallel stress test (Run ID: {run_id})")
+    logger.info(f"Arguments: {vars(args)}")
+    
     sustainable = 0
 
     for n in range(1, args.max_instances + 1):
-        print(f"\n→ Testing {n} parallel instances…")
+        logger.info(f"Testing {n} parallel instances...")
+        
         # Launch
-        procs = launch_instances(n, args)
+        procs = launch_instances(n, args, logger)
+        logger.debug("Waiting 10 seconds for processes to start")
         time.sleep(10)  # let them spin up
 
         # Monitor CPU & Memory
+        logger.debug(f"Monitoring system resources for {args.duration} seconds")
         avg_cpu, avg_mem = monitor_system(args.duration, args.interval)
-        print(f"   Avg CPU%: {avg_cpu:.1f}, Avg Mem%: {avg_mem:.1f}")
+        logger.info(f"Avg CPU%: {avg_cpu:.1f}, Avg Mem%: {avg_mem:.1f}")
 
         # Terminate all
+        logger.debug("Terminating child processes")
         alive = 0
         for p, _ in procs:
             if p.poll() is None:
@@ -115,29 +149,42 @@ def main():
                 if p.returncode == 0:
                     alive += 1
             p.terminate()
-        print(f"   Processes alive at end: {alive}/{n}")
+        logger.info(f"Processes alive at end: {alive}/{n}")
 
         # Parse FPS logs
+        logger.debug("Parsing FPS from CSV logs")
         fps_vals = []
         for _, logfile in procs:
             fps = parse_fps_from_csv(logfile)
             if fps is not None:
                 fps_vals.append(fps)
+            else:
+                logger.warning(f"Could not parse FPS from {logfile}")
+                
         avg_fps = (sum(fps_vals) / len(fps_vals)) if fps_vals else 0.0
-        print(f"   Avg FPS across instances: {avg_fps:.1f}")
+        logger.info(f"Avg FPS across instances: {avg_fps:.1f}")
 
         # Check thresholds
         if (alive < n or
             avg_cpu > args.cpu_threshold or
             avg_mem > args.mem_threshold or
             avg_fps < args.fps_threshold):
-            print(f"   ✗ Unsustainable at N={n}")
+            logger.info(f"❌ Unsustainable at N={n}")
+            if alive < n:
+                logger.info(f"Reason: Only {alive}/{n} processes stayed alive")
+            if avg_cpu > args.cpu_threshold:
+                logger.info(f"Reason: CPU usage ({avg_cpu:.1f}%) exceeded threshold ({args.cpu_threshold:.1f}%)")
+            if avg_mem > args.mem_threshold:
+                logger.info(f"Reason: Memory usage ({avg_mem:.1f}%) exceeded threshold ({args.mem_threshold:.1f}%)")
+            if avg_fps < args.fps_threshold:
+                logger.info(f"Reason: FPS ({avg_fps:.1f}) below threshold ({args.fps_threshold:.1f})")
             break
         else:
-            print(f"   ✓ Sustainable at N={n}")
+            logger.info(f"✓ Sustainable at N={n}")
             sustainable = n
 
-    print(f"\nMax sustainable parallel instances ≈ {sustainable}")
+    logger.info(f"Max sustainable parallel instances ≈ {sustainable}")
+    logger.info("Parallel stress test complete")
 
 if __name__ == "__main__":
     main()
